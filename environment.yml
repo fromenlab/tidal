@@ -1,0 +1,8 @@
+name: dynamic
+dependencies:
+  - python=3.9
+  - pyserial
+  - numpy
+  - pandas
+  - matplotlib
+  - jupyter

@@ -1,0 +1,117 @@
+# Summary
+
+## Usage
+
+- All commands are case-sensitive
+- All commands must be enclosed in angle brackets (i.e. `<Command>`)
+- Maximum command length is 32 characters between brackets
+- The separator to be used within commands is `/`
+- If a command is not defined, `Invalid command` will be returned
+- Motors are listed in the five-bit sequence (`00000`), in order of right upper, right middle, right lower, left upper, left lower.
+
+## Commands
+
+### Check commands
+
+**General**
+
+- `?` 
+    - Query connection
+- `?S` 
+    - Query parameters
+
+
+### Set commands
+
+**Global Parameters**
+
+
+**Lobe Parameters**
+
+### Run commands
+
+**Maneuvers**
+
+
+
+\newpage
+# General commands
+
+## `?`
+
+Returns `OK` if the connection is working.
+
+## `?S`
+
+Returns the following:
+
+- Profile delay
+- Profile cycles
+- Motor steps
+- Inhale delay (before inhalation maneuver)
+- Exhale delay (before exhalation maneuver)
+- Starting maneuver (first maneuver in cycle)
+
+\newpage
+# Set commands
+
+## Global parameters
+
+Format: `S{Setting}/{Value}/{Additional parameters}`
+
+### `SN/X`
+
+Sets the number of breathing cycles (`X`) performed in a profile.
+
+`X` cast as float.
+
+### `SS/X/00000`
+
+_Note: This method may be refactored in the future._
+
+- `SS` - Set steps
+- `X` - Number of steps
+- `00000` - Motor bits
+
+Sets the number of steps (`X`) to be taken by a given motor. Flip a 0 bit to 1 to set the number of steps for that motor. Multiple motors can be set simultaneously.
+
+`X` cast as float.
+
+### `SD{IEP}/X`
+
+- `SD{IEP}` - Set delay for a maneuver
+- `X` - Number of seconds to pause before a maneuver
+    - Float (decimal value) acceptable
+
+Set the delay taken before one of the following
+
+- `I` - inhalation
+- `E` - exhalation
+- `P` - profile (repeated breathing cycles)
+
+### `SM{IE}`
+
+Set the starting maneuver for profile breathing.
+    - `I` - inhalation
+    - `E` - exhalation
+
+## Lobe parameters
+
+### `M{IE}/X/00000`
+
+- `M{IE}` - Set the maneuver type (inhale/exhale)
+- `X` - Set the number of steps for the maneuver. Max = 500.
+- `00000` - Motor bits
+
+For the given motor, prepares a maneuver of the given number of steps, in the given direction. Sending this command does not run the motion. Sending an updated command with the same motor bit(s) set, before sending the `RUN` command, will invalidate previous maneuver settings for the same motor (i.e. only one maneuver can be set for a given motor at a time).
+
+\newpage
+# Run commands
+
+## `RUN`
+
+Runs the most recent maneuvers stored for each lobe via the `M` command. Only runs maneuvers since the last `RUN` command.
+
+## `PROFILE`
+
+Runs a breathing profile based on the delay arrays for each lobe, the set number of cycles, and the set inhalation/exhalation order.
