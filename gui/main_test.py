@@ -56,17 +56,19 @@ if __name__ == "__main__":
     panel_notebook.add(frf, text="Flow Meter")
     recorder_panel = recorder.RecorderPanel(frf, tidal)
 
-    lobes = {
-            'RU': 0,
-            'RM': 0,
-            'RL': 0,
-            'LU': 0,
-            'LL': 0
-        }
-    for lobe in lobes:
+    for lobe in tidal.lobes:
         fr = ttk.Frame(panel_notebook)
-        panel_notebook.add(fr, text=lobe)
-        BezierPanel(fr)
+        fr.columnconfigure(0, weight=1)
+        fr.columnconfigure(1, weight=1)
+        panel_notebook.add(fr, text=lobe.name)
+        fr_inhale = ttk.Frame(fr)
+        fr_inhale.columnconfigure(0, weight=1)
+        fr_exhale = ttk.Frame(fr)
+        fr_exhale.columnconfigure(0, weight=1)
+        lobe.gui_inhale_bezier = BezierPanel(fr_inhale)
+        lobe.gui_exhale_bezier = BezierPanel(fr_exhale)
+        fr_inhale.grid(column=0, sticky=tk.EW)
+        fr_exhale.grid(column=1, row=0, sticky=tk.EW)
 
     log_panel = LogPanel(frame_console_out, tidal)
     setup_panel = SetupPanel(f1, tidal)
