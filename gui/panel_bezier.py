@@ -19,6 +19,8 @@ from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
 from api.bezier import *
 
+from tkinter import filedialog
+import json
    
 class Interactor:
     """
@@ -38,6 +40,7 @@ class Interactor:
 
     showverts = True
     epsilon = 0.1  # max pixel distance to count as a vertex hit
+    click_epsilon = 10
 
     def __init__(self, ax, poly):
         # if poly.figure is None:
@@ -57,6 +60,7 @@ class Interactor:
 
         self.cid = self.control_poly.add_callback(self.poly_changed)
         self._ind = None  # the active vert
+        self._click = None # location of mouse click
 
         canvas.mpl_connect('draw_event', self.on_draw)
         canvas.mpl_connect('button_press_event', self.on_button_press)
@@ -111,11 +115,8 @@ class Interactor:
         if event.button != 1:
             return
         self._ind = self.get_ind_under_point(event)
-
-        if self._ind is None:
-            self.control_x.append(event.xdata)
-            self.control_y.append(event.ydata)
-            self.update_bezier()
+        self._click = [event.x, event.y]
+        print(self._click)
 
     def on_button_release(self, event):
         """Callback for mouse button releases."""
@@ -123,6 +124,17 @@ class Interactor:
             return
         if event.button != 1:
             return
+
+        if self._ind is None:
+            d = np.hypot(self._click[0] - event.x, self._click[1] - event.y)
+            print([event.x, event.y])
+            print(d)
+            if d < self.click_epsilon:
+                self.control_x.append(event.xdata)
+                self.control_y.append(event.ydata)
+                self.update_bezier()
+
+
         self._ind = None
 
     def on_key_press(self, event):
@@ -204,9 +216,13 @@ class BezierPanel:
 
         button_log = tk.Button(fr, text="Log", command = self.log_points)
         button_reset = tk.Button(fr, text="Reset", command = self.reset_points)
+        button_save = tk.Button(fr, text="Save", command = self.save_points)
+        button_load = tk.Button(fr, text="Load", command = self.load_points)
 
         button_log.pack(padx=5)
         button_reset.pack(padx=5)
+        button_save.pack(padx=5)
+        button_load.pack(padx=5)
     
     def make_canvas(self, parent):
         fig = Figure()
@@ -235,6 +251,21 @@ class BezierPanel:
         self.interactor.control_x = [0]
         self.interactor.control_y = [0]
         self.interactor.update_bezier()
+
+    def save_points(self):
+        points = {'x': self.interactor.control_x, 'y': self.interactor.control_y}
+        with filedialog.asksaveasfile() as f:
+            json.dump(points, f, indent=4)
+            print(f.name)
+
+    def load_points(self):
+        with filedialog.askopenfile() as f:
+            points = json.load(f)
+            print(points)
+            self.interactor.control_x = points['x']
+            self.interactor.control_y = points['y']
+            self.interactor.update_bezier()
+            print(f.name)
         
 if __name__ == "__main__":
     root = tk.Tk()
