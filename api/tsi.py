@@ -95,6 +95,22 @@ class TSI:
             results += data
         
         return f
+    
+    def setup_single(self):
+        self.dev.write('DBFxx1000\r'.encode('ascii'))
+        return self.dev.read(1) == b'\x00'
+    
+    def convert_single(self):
+        # self.dev.reset_input_buffer()
+        data = self.dev.read(2)
+        # print(len(data))
+        self.dev.reset_input_buffer()
+        if data and data != b'\xff\xff':
+            return int.from_bytes(data[0:2], 'big', signed=False)/100
+        else:
+            self.setup_single()
+            return None
+            
 
     def convert_volume(self, byte = None):
         results = bytearray()

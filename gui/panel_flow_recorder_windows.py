@@ -110,6 +110,9 @@ class RecorderPanel:
         button_run = tk.Button(frame_run, text = 'Start Recording', command = lambda:run(self.tidal, self, event), padx=10, pady=10)
         button_run.grid(column=0, row = 0, padx=10, pady=10, sticky=tk.EW)
 
+        button_live = tk.Button(frame_run, text = 'Plot Live', command = lambda:run_plot_live(self.tidal, self, event), padx=10, pady=10)
+        button_live.grid(column=0, row=1, padx=10, pady=5, sticky=tk.EW)
+
         # Stop options
         button_terminate = tk.Button(frame_run, text = 'Terminate', command = lambda:stop(event), padx=10, pady=10)
         button_terminate.grid(column=1, row = 0, padx=10, pady=5, sticky=tk.EW)
@@ -143,6 +146,16 @@ def run(tidal: TIDAL, panel, event):
     log_process.start()
     return
 
+def run_plot_live(tidal: TIDAL, panel, event):
+    global log_process
+    if tidal.tsi_connected:
+        tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
+    if log_process is not None:
+        log_process.terminate()
+    log_process = Process(target=plot_live, args=(tidal.get_tsi(), event,))
+    log_process.start()
+    return
+
 def log_data(tsi_instance: TSI, event):
     # Read and save set of 1000 flow measurements until terminated
 
@@ -164,6 +177,60 @@ def log_data(tsi_instance: TSI, event):
     print("Stop logging")
     tsi_instance.close()
     event.clear()
+
+from collections import deque
+class TSIPlot:
+    def __init__(self) -> None:
+        self.plot_length = 100
+        self.maxy = 60
+        self.x = range(self.plot_length)
+        self.y = deque([0]*self.plot_length, maxlen=self.plot_length)
+        self.line = None
+        self.currentTimer = 0
+        self.previousTimer = 0
+
+def update_plot(frame, tsi_instance: TSI, plot_instance: TSIPlot):
+    value = tsi_instance.convert_single()
+    if value and value < plot_instance.maxy:
+        plot_instance.y.append(value)
+        plot_instance.line.set_data(plot_instance.x, plot_instance.y)
+    
+
+def plot_live(tsi_instance: TSI, event):
+    # References
+    # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html
+    # https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html
+    # https://matplotlib.org/stable/api/animation_api.html
+    # https://matplotlib.org/stable/gallery/animation/simple_anim.html
+
+    # Set up plot
+    from matplotlib.animation import FuncAnimation
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = plt.axes(xlim=(0,100), ylim=(0,60))
+    ax.xaxis.set_ticks([])
+    ax.set_ylabel("Flow rate (SLPM)")
+    lines = ax.plot([], [])[0]
+
+    tsi_instance.connect()
+    response = tsi_instance.query_connection(message="SSR0010\r")
+    print(f'Set sample rate: {response}')
+
+    # Confirm sample rate
+    response = tsi_instance.query_connection(message="RSR\r")
+    print(f'Sample rate (ms): {response}')
+
+    tsi_instance.setup_single()
+
+    plot_instance = TSIPlot()
+    plot_instance.line = lines
+
+    anim = FuncAnimation(fig, update_plot, fargs=(tsi_instance, plot_instance), interval=50)
+    # Note that update interval will not be exactly 50 ms, and plot data will
+    # _not_ be temporally accurate
+    plt.show()
+
+    event.clear()
     
 def stop(event):
     # Stop logging
@@ -172,7 +239,7 @@ def stop(event):
 
 if __name__ == "__main__":
     tidal = TIDAL()
-    tidal.set_tsi_port('COM7')
+    tidal.set_tsi_port('COM6')
     # tidal.connect_tsi()
 
     root = tk.Tk()

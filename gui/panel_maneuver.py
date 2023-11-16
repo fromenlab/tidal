@@ -209,6 +209,9 @@ class ManeuverPanel:
         Arduino.update_lobe_delays(self.ard)
 
     def check_settings(self):
+        if not self.ard:
+            arduino = self.tidal_instance.get_motors()
+            self.ard = arduino
         print(Arduino.check_parameters(self.ard))
 
     def run(self):
