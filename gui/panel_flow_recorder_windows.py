@@ -126,19 +126,20 @@ def run(tidal: TIDAL, panel, event):
     # This method needs to be refactored
     print("Run clicked")
     global log_process
-    notes = panel.get_notes()
-    id, date = utils.make_id(notes)
-    output_dir = panel.entry_input.get()
-    panel.run_folder, panel.data_folder = utils.make_run_folder(output_dir=output_dir, id = id)
-    utils.write_log(dir=panel.run_folder, name="flow-log.txt", lines=panel.get_log_lines(date=date))
-    tidal.tsi.set_output_dir(panel.data_folder)
-    tidal.set_run_id(id)
-    tidal.set_data_dir(panel.data_folder)
+    # notes = panel.get_notes()
+    # id, date = utils.make_id(notes)
+    # output_dir = panel.entry_input.get()
+    # panel.run_folder, panel.data_folder = utils.make_run_folder(output_dir=output_dir, id = id)
+    utils.write_log(dir=tidal.get_run_dir(), name="flow-log.txt", lines=panel.get_log_lines(date=''))
+    # tidal.tsi.set_output_dir(panel.data_folder)
+    # tidal.set_run_id(id)
+    # tidal.set_data_dir(panel.data_folder)
     if tidal.tsi_connected:
         tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
     if log_process is not None:
         log_process.terminate()
-    log_process = Process(target=log_data, args=(tidal.tsi, event,))
+    tidal.get_tsi().set_output_dir(tidal.get_data_dir()) # breaks standalone behavior
+    log_process = Process(target=log_data, args=(tidal.get_tsi(), event,))
     log_process.start()
     return
 

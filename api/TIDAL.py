@@ -1,5 +1,7 @@
 from api.arduino_motor import Arduino
 from api.tsi import TSI
+import os
+from utils.logger import Logger
 
 class TIDAL():
     def __init__(self, tsi_port = None, motor_port = None) -> None:
@@ -13,6 +15,8 @@ class TIDAL():
         self.tsi = None
         self.tsi_connected = False
         self.arduino = None
+        self.log_dir = os.path.join(os.path.dirname(__file__), r"logs")
+        self.logger = None
 
         self.init_lobes()
         self.init_lobe_entries()
@@ -20,11 +24,11 @@ class TIDAL():
 
         if motor_port:
             self.set_motor_port(motor_port)
-            self.connect_motors()
+            # self.connect_motors()
 
         if tsi_port:
             self.set_tsi_port(tsi_port)
-            self.connect_tsi()
+            # self.connect_tsi()
 
         pass
 
@@ -79,30 +83,44 @@ class TIDAL():
     # Logging
     # 
 
+
+    # The log dir is where information on each run will be recorded
     def set_log_dir(self, dir):
         self.log_dir = dir
 
     def get_log_dir(self):
         return self.log_dir
+    
+    # The run ID is a ~unique identifier for each set of experimental conditions
+    def set_run_id(self, id):
+        self.run_id = id
 
+    def get_run_id(self):
+        return self.run_id
+
+    # The run dir is where information on each set of experimental conditions and associated data will be recorded
     def set_run_dir(self, dir):
         self.run_dir = dir
+        if self.logger:
+            self.logger.set_file_output(os.path.join(dir, "log.txt"))
 
     def get_run_dir(self):
         return self.run_dir
     
+    # The data dir is where measured output from each run will be recorded
     def set_data_dir(self, dir):
         self.data_dir = dir
 
     def get_data_dir(self):
         return self.data_dir
     
-    def set_run_id(self, id):
-        self.run_id = id
+    def set_logger(self, logger: Logger):
+        self.logger = logger
 
-    def get_run_id(self):
-        return self.run_id
+    def get_logger(self):
+        return self.logger
     
+
     # 
     # Maneuver panel
     # 

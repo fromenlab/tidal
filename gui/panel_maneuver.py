@@ -168,9 +168,11 @@ class ManeuverPanel:
         if step_count:
             try:
                 step_count = abs(int(step_count))
-                print(step_count, direction)
-                Arduino.prepare_maneuver(self.ard, maneuver=maneuver, steps = step_count, motors = self.get_lobes())
-                Arduino.run_maneuver(self.ard)
+                # print(step_count, direction)
+                arduino = self.tidal_instance.get_motors()
+                self.ard = arduino
+                Arduino.prepare_maneuver(arduino, maneuver=maneuver, steps = step_count, motors = self.get_lobes())
+                Arduino.run_maneuver(arduino)
             except:
                 print("Invalid input")
 

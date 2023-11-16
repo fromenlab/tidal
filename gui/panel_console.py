@@ -3,30 +3,7 @@ from tkinter import scrolledtext
 import sys
 import os
 from api.TIDAL import TIDAL
-
-class Logger():
-    def __init__(self, console_output = None, file_output = None):
-        self.console_output = console_output
-        self.file_output = file_output
-
-    def set_file_output(self, path):
-        self.file_output = path
-
-    def set_console_output(self, object):
-        self.console_output = object
-    
-    def write(self, string):
-        self.console_output.configure(state = 'normal')
-        self.console_output.insert(tk.END, string)
-        self.console_output.configure(state = 'disabled')
-        self.console_output.see('end')
-
-        with open(self.file_output, 'a', encoding='utf-8') as f:
-            for line in string:
-                f.writelines(line)
-
-    def flush(self):
-        pass
+from utils.logger import Logger
 
 class LogPanel():
     def __init__(self, parent, tidal_instance: TIDAL = None) -> None:
@@ -50,13 +27,8 @@ class LogPanel():
 
         self.logger.set_console_output(console_view)
 
-        if self.tidal_instance is None:
-            self.logger.set_file_output(os.path.join(r'out.log'))
-        else:
-            # self.logger.set_file_output(self.tidal_instance.get_log)
-            pass
-
         sys.stdout = self.logger
+        self.tidal_instance.set_logger(self.logger)
 
 if __name__ == "__main__":
 
