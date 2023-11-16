@@ -204,7 +204,7 @@ class ManeuverPanel:
                 Arduino.set_lobe_default(self.ard, 'steps', lobe.gui_constant_step_entry.get(), selected_lobe)
 
             if lobe.gui_constant_delay_entry.get():
-                Arduino.set_lobe_default(self.ard, 'steps', lobe.gui_constant_delay_entry.get(), selected_lobe)
+                Arduino.set_lobe_default(self.ard, 'delay', lobe.gui_constant_delay_entry.get(), selected_lobe)
         
         Arduino.update_lobe_delays(self.ard)
 

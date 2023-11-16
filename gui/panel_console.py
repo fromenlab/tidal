@@ -43,7 +43,7 @@ if __name__ == "__main__":
     fr_panel = tk.Frame(root)
     fr_panel.columnconfigure(0,weight=1)
     fr_panel.rowconfigure(0,weight=1)
-    LogPanel(fr_panel)
+    LogPanel(fr_panel, TIDAL())
 
     button.pack(fill='x')
     fr_panel.pack(expand=True, fill='both')

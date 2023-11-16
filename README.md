@@ -7,7 +7,8 @@ Control interfaces for dynamic lung system
 
 ### Linux
 
-This is default choice for running the system in a lab setting. We use a recent version of Ubuntu, but other Linux flavors should also be suitable.
+This is default choice for running the system in a lab setting. We use a recent version of Ubuntu, 
+but other Linux flavors should also be suitable.
 
 Optional: add timestamps to command history.  
 `echo 'export HISTTIMEFORMAT="%Y%m%d "' >> ~/.bashrc`
@@ -17,7 +18,9 @@ Add USB access permissions with the following command. Log out and log back in t
 
 ### Windows
 
-Windows can be used for development purposes out of lab. However, there are important differences in how threads/processes are handled between Windows and Linux, so the final tests should be confirmed with whatever system is being used in lab. Separate versions are maintained for certain features, but Windows will not be the primary OS for the current state of development.
+As of the current working version (F2023), Windows conventions for flow logging have been implemented in the main routine.
+ However, there are important differences in how threads/processes are handled between Windows and Linux, so the final 
+ tests should be confirmed with whatever system is being used in lab.
 
 ## Arduino
 
