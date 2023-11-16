@@ -7,6 +7,7 @@ from gui.panel_plot import PlotPanel
 from api.arduino_motor import Arduino
 from api.tsi import TSI
 import gui.panel_interactive as interactive
+from gui.panel_maneuver_profile import ProfileManeuverPanel
 from gui.panel_bezier import BezierPanel
 from gui.panel_console import LogPanel
 from gui.panel_setup import SetupPanel
@@ -51,6 +52,11 @@ if __name__ == "__main__":
     frm = ttk.Frame(panel_notebook)
     panel_notebook.add(frm, text="Maneuver")
     maneuver_panel = ManeuverPanel(frm, tidal)
+    profile_maneuver_panel = ProfileManeuverPanel(frm, tidal)
+    maneuver_panel.frame.grid(row=0, column=0, sticky=tk.EW)
+    profile_maneuver_panel.frame.grid(row=0, column=1, sticky=tk.NSEW)
+    frm.columnconfigure(0, weight=1)
+    frm.columnconfigure(1, weight=1)
 
     frf = ttk.Frame(panel_notebook)
     panel_notebook.add(frf, text="Flow Meter")
@@ -67,8 +73,9 @@ if __name__ == "__main__":
         fr_exhale.columnconfigure(0, weight=1)
         lobe.gui_inhale_bezier = BezierPanel(fr_inhale)
         lobe.gui_exhale_bezier = BezierPanel(fr_exhale)
-        fr_inhale.grid(column=0, sticky=tk.EW)
-        fr_exhale.grid(column=1, row=0, sticky=tk.EW)
+        fr_inhale.grid(column=0, sticky=tk.EW, padx=10)
+        fr_exhale.grid(column=1, row=0, sticky=tk.EW, padx=10)
+        fr.rowconfigure(0, weight=1)
 
     log_panel = LogPanel(frame_console_out, tidal)
     setup_panel = SetupPanel(f1, tidal)

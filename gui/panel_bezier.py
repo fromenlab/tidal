@@ -116,7 +116,6 @@ class Interactor:
             return
         self._ind = self.get_ind_under_point(event)
         self._click = [event.x, event.y]
-        print(self._click)
 
     def on_button_release(self, event):
         """Callback for mouse button releases."""
@@ -127,13 +126,10 @@ class Interactor:
 
         if self._ind is None:
             d = np.hypot(self._click[0] - event.x, self._click[1] - event.y)
-            print([event.x, event.y])
-            print(d)
             if d < self.click_epsilon:
                 self.control_x.append(event.xdata)
                 self.control_y.append(event.ydata)
                 self.update_bezier()
-
 
         self._ind = None
 
@@ -152,9 +148,6 @@ class Interactor:
                 self.control_x.pop(ind)
                 self.control_y.pop(ind)
                 self.update_bezier()
-                # self.poly.xy = np.delete(self.poly.xy,
-                #                          ind, axis=0)
-                # self.line.set_data(zip(*self.poly.xy))
         elif event.key == 'i':
             self.control_x.append(event.xdata)
             self.control_y.append(event.ydata)
@@ -202,8 +195,8 @@ class BezierPanel:
         toolbar = NavigationToolbar2Tk(canvas, fr, pack_toolbar=False)
         toolbar.update()
 
-        canvas.mpl_connect(
-            "key_press_event", lambda event: print(f"you pressed {event.key}"))
+        # canvas.mpl_connect(
+        #     "key_press_event", lambda event: print(f"you pressed {event.key}"))
         canvas.mpl_connect("key_press_event", key_press_handler)
 
         # Packing order is important. Widgets are processed sequentially and if there
@@ -214,15 +207,23 @@ class BezierPanel:
         toolbar.pack(side=tk.TOP, fill=tk.X)
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        button_log = tk.Button(fr, text="Log", command = self.log_points)
-        button_reset = tk.Button(fr, text="Reset", command = self.reset_points)
-        button_save = tk.Button(fr, text="Save", command = self.save_points)
-        button_load = tk.Button(fr, text="Load", command = self.load_points)
+        fr_button = tk.Frame(fr)
+        fr_button.columnconfigure(0, weight=1)
+        fr_button.columnconfigure(1, weight=1)
+        fr_button.columnconfigure(2, weight=1)
+        fr_button.columnconfigure(3, weight=1)
 
-        button_log.pack(padx=5)
-        button_reset.pack(padx=5)
-        button_save.pack(padx=5)
-        button_load.pack(padx=5)
+        button_log = tk.Button(fr_button, text="Log", command = self.log_points)
+        button_reset = tk.Button(fr_button, text="Reset", command = self.reset_points)
+        button_save = tk.Button(fr_button, text="Save", command = self.save_points)
+        button_load = tk.Button(fr_button, text="Load", command = self.load_points)
+
+        button_log.grid(row=0, column=0, padx=5, sticky = tk.EW)
+        button_reset.grid(row=0, column=1, padx=5, sticky = tk.EW)
+        button_save.grid(row=0, column=2, padx=5, sticky = tk.EW)
+        button_load.grid(row=0, column=3, padx=5, sticky = tk.EW)
+
+        fr_button.pack(fill='x', pady=10)
     
     def make_canvas(self, parent):
         fig = Figure()

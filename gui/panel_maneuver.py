@@ -28,6 +28,8 @@ class ManeuverPanel:
         self.hr(fr_pad)
         self.make_profile_input(parent = fr_pad)
 
+        self.frame=fr_pad
+
 
 
     ###################
