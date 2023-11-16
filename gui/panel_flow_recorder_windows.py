@@ -1,15 +1,17 @@
 import tkinter as tk
 from tkinter import filedialog
-from multiprocessing import Process
+from multiprocessing import Process, Event
 from datetime import datetime
 
-from api.tsi import TSI_Win as TSI
+from api.tsi import TSI
 import utils.unique_id as utils
+from api.TIDAL import TIDAL
 
 class RecorderPanel:
-    def __init__(self, parent, tsi_instance = None):
+    def __init__(self, parent, tidal_instance: TIDAL = None):
         self.parent = parent
-        self.tsi = tsi_instance
+        self.tidal = tidal_instance
+        self.tsi = tidal_instance.get_tsi()
         self.log_process = None
         self.output_path = None     # Folder for all logs
         self.run_folder = None      # Folder for given log
@@ -102,12 +104,14 @@ class RecorderPanel:
         frame_run.grid(sticky=tk.EW)
         frame_run.columnconfigure(0, weight=1)
 
+        event = Event()
+
         # Run options
-        button_run = tk.Button(frame_run, text = 'Start Logging', command = lambda:run(self.tsi, self), padx=10, pady=10)
+        button_run = tk.Button(frame_run, text = 'Start Logging', command = lambda:run(self.tidal, self, event), padx=10, pady=10)
         button_run.grid(column=0, row = 0, padx=10, pady=10, sticky=tk.EW)
 
         # Stop options
-        button_terminate = tk.Button(frame_run, text = 'Terminate', command = stop, padx=10, pady=10)
+        button_terminate = tk.Button(frame_run, text = 'Terminate', command = lambda:stop(event), padx=10, pady=10)
         button_terminate.grid(column=1, row = 0, padx=10, pady=5, sticky=tk.EW)
 
         button_log = tk.Button(frame_run, text = 'Update Log', command = self.update_log, padx=10, pady=10)
@@ -118,7 +122,8 @@ class RecorderPanel:
 
 log_process = None
 
-def run(tsi, panel):
+def run(tidal: TIDAL, panel, event):
+    # This method needs to be refactored
     print("Run clicked")
     global log_process
     notes = panel.get_notes()
@@ -126,15 +131,25 @@ def run(tsi, panel):
     output_dir = panel.entry_input.get()
     panel.run_folder, panel.data_folder = utils.make_run_folder(output_dir=output_dir, id = id)
     utils.write_log(dir=panel.run_folder, name="flow-log.txt", lines=panel.get_log_lines(date=date))
-    panel.tsi.set_output_dir(panel.data_folder)
-    log_process = Process(target=log_data, args=(tsi,))
+    tidal.tsi.set_output_dir(panel.data_folder)
+    tidal.set_run_id(id)
+    tidal.set_data_dir(panel.data_folder)
+    if tidal.tsi_connected:
+        tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
+    if log_process is not None:
+        log_process.terminate()
+    log_process = Process(target=log_data, args=(tidal.tsi, event,))
     log_process.start()
     return
 
-def log_data(tsi_instance):
+def log_data(tsi_instance: TSI, event):
     # Read and save set of 1000 flow measurements until terminated
 
-    tsi_instance.establish_connection()
+    # tsi_instance.establish_connection()
+    tsi_instance.connect()
+    # tidal_instance.connect_tsi()
+    # tsi_instance = tidal_instance.get_tsi()
+    # tsi_instance.set_output_dir(tidal_instance.get_data_dir())
     response = tsi_instance.query_connection(message="SSR0010\r")
     print(f'Set sample rate: {response}')
 
@@ -142,25 +157,29 @@ def log_data(tsi_instance):
     response = tsi_instance.query_connection(message="RSR\r")
     print(f'Sample rate (ms): {response}')
 
-    while True:
+    while not event.is_set():
         tsi_instance.query_flow_set()
+
+    print("Stop logging")
+    tsi_instance.close()
+    event.clear()
     
-def stop():
+def stop(event):
     # Stop logging
-    global log_process
-    # TODO: Clean handling of log termination. Should finish recording all remaining data before terminating process.
-    log_process.terminate()
+    event.set()
     return
 
 if __name__ == "__main__":
-    tsi = TSI('COM7')
+    tidal = TIDAL()
+    tidal.set_tsi_port('COM7')
+    # tidal.connect_tsi()
 
     root = tk.Tk()
     root.columnconfigure(0,weight=1)
 
     frame = tk.Frame(root, width=100, height=100)
     frame.columnconfigure(0,weight=1)
-    RecorderPanel(frame, tsi_instance=tsi)
+    RecorderPanel(frame, tidal_instance=tidal)
     frame.grid(padx=10, pady=10, sticky=tk.NSEW, column=0, row=0)
 
     root.mainloop()

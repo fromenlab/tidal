@@ -1,15 +1,24 @@
 import tkinter as tk
+from tkinter import ttk
 
 from gui.panel_maneuver import ManeuverPanel
 import gui.panel_flow_recorder_windows as recorder
 from gui.panel_plot import PlotPanel
 from api.arduino_motor import Arduino
-from api.tsi import TSI_Win as TSI
+from api.tsi import TSI
 import gui.panel_interactive as interactive
 from gui.panel_bezier import BezierPanel
 
 
 if __name__ == "__main__":
+
+    from api.TIDAL import TIDAL
+    # TIDAL setup
+
+    tidal = TIDAL()
+    tidal.set_motor_port('COM8')
+    tidal.connect_motors()
+    tidal.set_tsi_port('COM6')
 
     ###
     # Communications setup
@@ -41,12 +50,25 @@ if __name__ == "__main__":
     fr_plot.columnconfigure(0, weight=1)
     fr_curve = tk.Frame(root, width=100, height=100)
 
-    recorder_panel = recorder.RecorderPanel(fr_1)#, tsi_instance=tsi_instance)
-    maneuver_panel = ManeuverPanel(fr_2)#, arduino_instance=arduino_instance)
+    recorder_panel = recorder.RecorderPanel(fr_1, tidal)
+    maneuver_panel = ManeuverPanel(fr_2, tidal)
     plot_panel = PlotPanel(fr_plot)
     # interactive_panel = interactive.InteractivePolygonPanel(fr_curve)
-    bezier_panel = BezierPanel(fr_curve)
+    # bezier_panel = BezierPanel(fr_curve)
 
+    n = ttk.Notebook(fr_curve)
+    n.pack(fill='both', expand=True)
+    lobes = {
+            'RU': 0,
+            'RM': 0,
+            'RL': 0,
+            'LU': 0,
+            'LL': 0
+        }
+    for lobe in lobes:
+        fr = ttk.Frame(n)
+        n.add(fr, text=lobe)
+        BezierPanel(fr)
 
     ###
     # Layout setup

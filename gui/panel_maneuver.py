@@ -1,59 +1,28 @@
 import tkinter as tk
 from tkinter import ttk
 from api.arduino_motor import Arduino
+from api.TIDAL import TIDAL
 
 class ManeuverPanel:
-    def __init__(self, parent, arduino_instance = None):
+    def __init__(self, parent, tidal_instance: TIDAL = None):
         self.parent = parent
-        self.ard = arduino_instance
-        self.lobes = {
-            'RU': 0,
-            'RM': 0,
-            'RL': 0,
-            'LU': 0,
-            'LL': 0
-        }
-
-        self.lobe_entries = {
-            'RU': {
-                'steps': None,
-                'delay': None
-            },
-            'RM': {
-                'steps': None,
-                'delay': None
-            },
-            'RL': {
-                'steps': None,
-                'delay': None
-            },
-            'LU': {
-                'steps': None,
-                'delay': None
-            },
-            'LL': {
-                'steps': None,
-                'delay': None
-            }
-        }
-
-        self.global_entries = {
-            "Breath count": None, 
-            "Profile delay (s)": None, 
-            "Inhale delay (s)": None, 
-            "Exhale delay (s)": None,
-            }
-        self.order = None
+        self.tidal = tidal_instance
+        # Reference to tidal instance. Tidal values will be 
+        # updated when these values are changed
+        self.ard = tidal_instance.get_motors()
+        self.lobes = tidal_instance.lobes
+        self.lobe_entries = tidal_instance.lobe_entries
+        self.global_entries = tidal_instance.global_entries
+        self.order = tidal_instance.order
 
         fr_pad = tk.Frame(self.parent)
         fr_pad.grid(padx=10, pady=10, sticky=tk.NSEW)
         fr_pad.columnconfigure(0, weight=1)
 
-        self.make_lobe_boxes(parent = fr_pad, lobes = self.lobes)
         self.make_maneuver_input(parent = fr_pad)
-        self.hr(fr_pad)
+        # self.hr(fr_pad)
         self.make_global_entries(parent = fr_pad)
-        self.hr(fr_pad)
+        # self.hr(fr_pad)
         self.make_lobe_entries(parent = fr_pad)
         self.hr(fr_pad)
         self.make_profile_input(parent = fr_pad)
@@ -75,10 +44,6 @@ class ManeuverPanel:
         ttk.Separator(parent, orient='horizontal').grid(sticky=tk.EW)
 
     def make_lobe_boxes(self, parent, lobes):
-        fr = tk.Frame(parent)
-        fr.grid()
-        tk.Label(fr, text="Position Tuning").grid(sticky=tk.W)
-
         fr_checks = tk.Frame(parent)
         fr_checks.grid()
 
@@ -91,7 +56,13 @@ class ManeuverPanel:
     def make_maneuver_input(self, parent):
         # maneuvers = ['Inhale', 'Exhale']
 
-        fr_maneuver = tk.Frame(parent)
+        fr = ttk.LabelFrame(parent, text="Position tuning")
+        fr.grid(sticky=tk.EW, pady=10)
+        fr.columnconfigure(0,weight=1)
+
+        self.make_lobe_boxes(fr, self.lobes)
+
+        fr_maneuver = tk.Frame(fr)
         fr_maneuver.grid()
         fr_maneuver.columnconfigure(0, weight=1)
         fr_maneuver.columnconfigure(1, weight=1)
@@ -107,9 +78,8 @@ class ManeuverPanel:
         exhale_button.grid(row = 0, column=2)
 
     def make_global_entries(self, parent):
-        frame = tk.Frame(parent)
-        frame.grid(sticky=tk.EW)
-        tk.Label(frame, text="Global settings").grid()
+        frame = ttk.LabelFrame(parent, text="Global settings")
+        frame.grid(sticky=tk.EW, pady=10)
         frame.columnconfigure(0, weight=1)
         rows = 0
 
@@ -139,9 +109,8 @@ class ManeuverPanel:
         button.grid(sticky=tk.EW, padx=5, pady=5, column=0)
 
     def make_lobe_entries(self, parent):
-        frame = tk.Frame(parent)
-        frame.grid(sticky=tk.EW)
-        tk.Label(frame, text="Lobe settings").grid()
+        frame = ttk.LabelFrame(parent, text="Lobe settings")
+        frame.grid(sticky=tk.EW, pady=10)
         frame.columnconfigure(0, weight=1)
         rows = 0
 
@@ -239,14 +208,18 @@ class ManeuverPanel:
         Arduino.run_profile(self.ard)
 
 if __name__ == "__main__":
-    arduino = Arduino('/dev/ttyACM0')
+    # arduino = Arduino('/dev/ttyACM0')
+
+    tidal = TIDAL()
+    tidal.set_motor_port('COM8')
+    tidal.connect_motors()
 
     root = tk.Tk()
     root.columnconfigure(0, weight=1)
 
     frame = tk.Frame(root, width=100, height=100)
     frame.columnconfigure(0, weight=1)
-    ManeuverPanel(frame, arduino_instance=arduino)
+    ManeuverPanel(frame, tidal)
     frame.grid(padx=10, pady=10, sticky=tk.NSEW, column=0, row=0)
 
     root.mainloop()

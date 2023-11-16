@@ -32,7 +32,7 @@ class Point:
 class Bezier:
     def __init__(self, x, y) -> None:
         self.control_points = [Point(point[0], point[1]) for point in zip(x,y)]
-        pass        
+        pass  
 
     def get_point_at_parameter(self, points: Point, t) -> Point:
         if len(points) == 1:
@@ -74,7 +74,7 @@ class Interactor:
     """
 
     showverts = True
-    epsilon = 5  # max pixel distance to count as a vertex hit
+    epsilon = 0.1  # max pixel distance to count as a vertex hit
 
     def __init__(self, ax, poly):
         # if poly.figure is None:
@@ -125,6 +125,11 @@ class Interactor:
         # xy = np.asarray(self.poly.xy)
         # xyt = self.poly.get_transform().transform(xy)
         # xt, yt = xyt[:, 0], xyt[:, 1]
+
+        if not (self.x and self.y):
+            ind = None
+            return ind
+
         d = np.hypot(self.x - event.xdata, self.y - event.ydata)
         indseq, = np.nonzero(d == d.min())
         ind = indseq[0]
@@ -143,6 +148,11 @@ class Interactor:
         if event.button != 1:
             return
         self._ind = self.get_ind_under_point(event)
+
+        if self._ind is None:
+            self.x.append(event.xdata)
+            self.y.append(event.ydata)
+            self.update_bezier()
 
     def on_button_release(self, event):
         """Callback for mouse button releases."""
@@ -193,8 +203,8 @@ class Interactor:
         self.update_bezier()
             
     def build_bezier(self):
-        curve = Bezier(self.x, self.y)
-        x, y = curve.get_curve_coords(200)
+        self.bezier = Bezier(self.x, self.y)
+        x, y = self.bezier.get_curve_coords(200)
         return x, y
 
     def update_bezier(self):
@@ -238,8 +248,8 @@ class BezierPanel:
         canvas.draw()
 
         ax.set_title('Click and drag a point to move it')
-        ax.set_xlim((-2, 2))
-        ax.set_ylim((-2, 2))
+        ax.set_xlim((-0.1, 1.1))
+        ax.set_ylim((-0.1, 1.1))
 
         line = Line2D([], [], ls='--', c='#666666',
                   marker='x', mew=2, mec='#204a87')
