@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from api.arduino_motor import Arduino
 from api.TIDAL import TIDAL
+from api.lobe import Lobe
 
 class ManeuverPanel:
     def __init__(self, parent, tidal_instance: TIDAL = None):
@@ -11,7 +12,7 @@ class ManeuverPanel:
         # updated when these values are changed
         self.ard = tidal_instance.get_motors()
         self.lobes = tidal_instance.lobes
-        self.lobe_entries = tidal_instance.lobe_entries
+        # self.lobe_entries = tidal_instance.lobe_entries
         self.global_entries = tidal_instance.global_entries
         self.order = tidal_instance.order
 
@@ -34,7 +35,7 @@ class ManeuverPanel:
     ###################
 
     def get_lobes(self):
-        return ''.join([str(self.lobes[lobe].get()) for lobe in self.lobes])
+        return ''.join([str(lobe.gui_checkbox.get()) for lobe in self.lobes])
 
     ##################
     # Layout functions
@@ -43,14 +44,14 @@ class ManeuverPanel:
     def hr(self, parent):
         ttk.Separator(parent, orient='horizontal').grid(sticky=tk.EW)
 
-    def make_lobe_boxes(self, parent, lobes):
+    def make_lobe_boxes(self, parent, lobes: Lobe):
         fr_checks = tk.Frame(parent)
         fr_checks.grid()
 
         for index, lobe in enumerate(lobes):
             # fr_checks.columnconfigure(index, weight=1)
-            lobes[lobe] = tk.IntVar()
-            check = tk.Checkbutton(fr_checks, text = lobe, variable=lobes[lobe])
+            lobe.gui_checkbox = tk.IntVar()
+            check = tk.Checkbutton(fr_checks, text = lobe.name, variable=lobe.gui_checkbox)
             check.grid(column=index, row = 0)
 
     def make_maneuver_input(self, parent):
@@ -124,15 +125,17 @@ class ManeuverPanel:
         tk.Label(frame_input, text="Steps").grid(sticky=tk.EW, column=1, row=0)
         tk.Label(frame_input, text="Delay").grid(sticky=tk.EW, column=2, row=0)
 
-        for index, lobe in enumerate(self.lobe_entries):
-            label = tk.Label(frame_input, text=lobe)
+        for index, lobe in enumerate(self.lobes):
+            label = tk.Label(frame_input, text=lobe.name)
             label.grid(row = index+1, column=0, padx=5, pady=5, sticky=tk.W)
 
-            for i, setting in enumerate(self.lobe_entries[lobe]):
-                entry = tk.Entry(frame_input)
-                entry.grid(row=index+1, column=i+1, padx = 5, sticky=tk.EW)
+            entry_steps = tk.Entry(frame_input)
+            lobe.gui_constant_step_entry = entry_steps
+            entry_delay = tk.Entry(frame_input)
+            lobe.gui_constant_delay_entry = entry_delay
 
-                self.lobe_entries[lobe][setting] = entry
+            entry_steps.grid(row=index+1, column=1, padx=5, sticky=tk.EW)
+            entry_delay.grid(row=index+1, column=2, padx=5, sticky=tk.EW)
 
             rows+=1
 
@@ -190,14 +193,16 @@ class ManeuverPanel:
         
 
     def update_lobe_settings(self):
-        for index, lobe in enumerate(self.lobe_entries):
+        for index, lobe in enumerate(self.lobes):
             selected_lobe = [0,0,0,0,0]
             selected_lobe[index] = 1
             selected_lobe = ''.join([str(_) for _ in selected_lobe])
 
-            for setting, value in self.lobe_entries[lobe].items():
-                if value.get():
-                    Arduino.set_lobe_default(self.ard, setting, value.get(), selected_lobe)
+            if lobe.gui_constant_step_entry.get():
+                Arduino.set_lobe_default(self.ard, 'steps', lobe.gui_constant_step_entry.get(), selected_lobe)
+
+            if lobe.gui_constant_delay_entry.get():
+                Arduino.set_lobe_default(self.ard, 'steps', lobe.gui_constant_delay_entry.get(), selected_lobe)
         
         Arduino.update_lobe_delays(self.ard)
 

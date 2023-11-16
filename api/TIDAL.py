@@ -2,6 +2,7 @@ from api.arduino_motor import Arduino
 from api.tsi import TSI
 import os
 from utils.logger import Logger
+from api.lobe import Lobe
 
 class TIDAL():
     def __init__(self, tsi_port = None, motor_port = None) -> None:
@@ -19,7 +20,6 @@ class TIDAL():
         self.logger = None
 
         self.init_lobes()
-        self.init_lobe_entries()
         self.init_global_entries()
 
         if motor_port:
@@ -125,37 +125,7 @@ class TIDAL():
     # Maneuver panel
     # 
     def init_lobes(self):
-        self.lobes = {
-            'RU': 0,
-            'RM': 0,
-            'RL': 0,
-            'LU': 0,
-            'LL': 0
-        }
-
-    def init_lobe_entries(self):
-        self.lobe_entries = {
-            'RU': {
-                'steps': None,
-                'delay': None
-            },
-            'RM': {
-                'steps': None,
-                'delay': None
-            },
-            'RL': {
-                'steps': None,
-                'delay': None
-            },
-            'LU': {
-                'steps': None,
-                'delay': None
-            },
-            'LL': {
-                'steps': None,
-                'delay': None
-            }
-        }
+        self.lobes = [Lobe(name) for name in ['RU', 'RM', 'RL', 'LU', 'LL']]
 
     def init_global_entries(self):
         self.global_entries = {
