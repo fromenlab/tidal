@@ -107,7 +107,7 @@ class RecorderPanel:
         event = Event()
 
         # Run options
-        button_run = tk.Button(frame_run, text = 'Start Logging', command = lambda:run(self.tidal, self, event), padx=10, pady=10)
+        button_run = tk.Button(frame_run, text = 'Start Recording', command = lambda:run(self.tidal, self, event), padx=10, pady=10)
         button_run.grid(column=0, row = 0, padx=10, pady=10, sticky=tk.EW)
 
         # Stop options

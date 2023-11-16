@@ -6,7 +6,7 @@ from api.TIDAL import TIDAL
 class ManeuverPanel:
     def __init__(self, parent, tidal_instance: TIDAL = None):
         self.parent = parent
-        self.tidal = tidal_instance
+        self.tidal_instance = tidal_instance
         # Reference to tidal instance. Tidal values will be 
         # updated when these values are changed
         self.ard = tidal_instance.get_motors()

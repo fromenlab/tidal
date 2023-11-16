@@ -183,6 +183,7 @@ class Interactor:
         elif event.key == 'i':
             self.x.append(event.xdata)
             self.y.append(event.ydata)
+            self.x, self.y = [list(_) for _ in zip(*sorted(zip(self.x, self.y)))]
             self.update_bezier()
         if self.line.stale:
             self.canvas.draw_idle()
@@ -262,7 +263,10 @@ class BezierPanel:
 if __name__ == "__main__":
     root = tk.Tk()
 
-    BezierPanel(root)
+    fr = tk.Frame(root)
+    fr.pack(expand=True, fill='both')
+   
+    BezierPanel(fr)
 
     root.mainloop()
 
