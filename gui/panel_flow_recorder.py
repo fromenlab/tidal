@@ -152,8 +152,9 @@ def run_plot_live(tidal: TIDAL, panel, event):
         tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
     if log_process is not None:
         log_process.terminate()
-    log_process = Process(target=plot_live, args=(tidal.get_tsi(), event,))
-    log_process.start()
+    # log_process = Process(target=plot_live, args=(tidal.get_tsi(), event,))
+    # log_process.start()
+    plot_live(tidal.get_tsi(), event)
     return
 
 def log_data(tsi_instance: TSI, event):

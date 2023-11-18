@@ -4,9 +4,6 @@ from tkinter import ttk
 from gui.panel_maneuver_constant import ManeuverPanel
 import gui.panel_flow_recorder as recorder
 from gui.panel_plot import PlotPanel
-from api.arduino_motor import Arduino
-from api.tsi import TSI
-import gui.panel_interactive as interactive
 from gui.panel_maneuver_profile import ProfileManeuverPanel
 from gui.panel_bezier import BezierPanel
 from gui.panel_console import LogPanel
@@ -52,9 +49,9 @@ if __name__ == "__main__":
     frm = ttk.Frame(panel_notebook)
     panel_notebook.add(frm, text="Maneuver")
     maneuver_panel = ManeuverPanel(frm, tidal)
-    profile_maneuver_panel = ProfileManeuverPanel(frm, tidal)
+    # profile_maneuver_panel = ProfileManeuverPanel(frm, tidal)
     maneuver_panel.frame.grid(row=0, column=0, sticky=tk.EW)
-    profile_maneuver_panel.frame.grid(row=0, column=1, sticky=tk.NSEW)
+    # profile_maneuver_panel.frame.grid(row=0, column=1, sticky=tk.NSEW)
     frm.columnconfigure(0, weight=1)
     frm.columnconfigure(1, weight=1)
 

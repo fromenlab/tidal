@@ -4,6 +4,7 @@
 
 .vscode/
 renv/
+*/logs/*
 
 ##########
 # R - .gitnignore 20230110

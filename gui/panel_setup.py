@@ -132,7 +132,7 @@ class SetupPanel:
             
         elif button['text'] == "Disconnect":
             try:
-                self.tidal.disconnect_motors()
+                self.tidal.disconnect_tsi()
                 button['text'] = "Connect"
                 print(f"Disconnected from {port}")
             except:
