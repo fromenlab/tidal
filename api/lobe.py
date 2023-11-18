@@ -1,16 +1,33 @@
 class Lobe():
     def __init__(self, name) -> None:
         self._name = name # indicating that _name is not public
+
+        # Constant delay profile and position tuning
         self._gui_checkbox = None
         self._gui_constant_step_entry = None
         self._gui_constant_delay_entry = None
-        self._gui_inhale_bezier = None
-        self._gui_exhale_bezier = None
+        
         self._step_count_constant = 200
         self._step_delay_constant = 2100
-        self._step_count_profile = 200
+        
+
+        # Variable delay profile
+        # Moving away from properties for certain variables, for expedience
+        # Revisit in the future
+        self.gui_variable_step_entry = None
+        self.step_count_variable = 200
+
+        self.gui_variable_inhale_min_delay_entry = None
+        self.gui_variable_inhale_max_delay_entry = None
+
+        self.gui_variable_exhale_min_delay_entry = None
+        self.gui_variable_exhale_max_delay_entry = None
+
+        self._gui_inhale_bezier = None
         self._inhale_control_points = []
         self._inhale_delays = []
+
+        self._gui_exhale_bezier = None
         self._exhale_control_points = []
         self._exhale_delays = []
 

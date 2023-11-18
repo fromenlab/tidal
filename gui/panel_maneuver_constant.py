@@ -3,6 +3,7 @@ from tkinter import ttk
 from api.arduino_motor import Arduino
 from api.TIDAL import TIDAL
 from api.lobe import Lobe
+from gui.VerticalScrolledFrame import VerticalScrolledFrame
 
 class ManeuverPanel:
     def __init__(self, parent, tidal_instance: TIDAL = None):
@@ -16,17 +17,18 @@ class ManeuverPanel:
         self.global_entries = tidal_instance.global_entries
         self.order = tidal_instance.order
 
-        fr_pad = tk.Frame(self.parent)
-        fr_pad.grid(padx=10, pady=10, sticky=tk.NSEW)
+        fr_pad = VerticalScrolledFrame(self.parent, padx=10, pady=10)
+        # fr_pad.grid(padx=10, pady=10, sticky=tk.NSEW)
+        # fr_pad.pack(padx=10, pady=10)
         fr_pad.columnconfigure(0, weight=1)
 
-        self.make_maneuver_input(parent = fr_pad)
+        self.make_maneuver_input(parent = fr_pad.interior)
         # self.hr(fr_pad)
-        self.make_global_entries(parent = fr_pad)
+        self.make_global_entries(parent = fr_pad.interior)
         # self.hr(fr_pad)
-        self.make_lobe_entries(parent = fr_pad)
-        self.hr(fr_pad)
-        self.make_profile_input(parent = fr_pad)
+        self.make_lobe_entries(parent = fr_pad.interior)
+        self.hr(fr_pad.interior)
+        self.make_profile_input(parent = fr_pad.interior)
 
         self.frame=fr_pad
 
@@ -223,15 +225,16 @@ if __name__ == "__main__":
     # arduino = Arduino('/dev/ttyACM0')
 
     tidal = TIDAL()
-    tidal.set_motor_port('COM8')
-    tidal.connect_motors()
+    # tidal.set_motor_port('COM8')
+    # tidal.connect_motors()
 
     root = tk.Tk()
     root.columnconfigure(0, weight=1)
 
     frame = tk.Frame(root, width=100, height=100)
     frame.columnconfigure(0, weight=1)
-    ManeuverPanel(frame, tidal)
+    panel = ManeuverPanel(frame, tidal)
+    panel.frame.pack(expand=True, fill = tk.X)
     frame.grid(padx=10, pady=10, sticky=tk.NSEW, column=0, row=0)
 
     root.mainloop()
