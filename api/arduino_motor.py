@@ -4,12 +4,29 @@ from datetime import datetime
 import os
 
 class Arduino:
-    def __init__(self, port, baudrate = 19200):
-        self.dev = serial.Serial(port, baudrate, timeout = 0.5)
-        sleep(1)
+    def __init__(self, port):
+        self.port = port
+
+    def connect(self, port = None, baudrate = 19200):
+        # Change the port if specified manually
+        if port is not None:
+            self.port = port
+
+        try:
+            self.dev = serial.Serial(self.port, baudrate, timeout = 0.5)
+            sleep(1)
+        except serial.SerialException as e:
+            print(f"There was an error connecting: {e}")
+        else:
+            print(f"Connected to Arduino on port {self.port}")
 
     def close(self):
-        self.dev.close()
+        try:
+            self.dev.close()
+        except:
+            print(f"There was an error disconnecting on port {self.port}")
+        else:
+            print(f"Disconnected from {self.port}")
 
     def format(self, fragments):
         if (type(fragments) is list):

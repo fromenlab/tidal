@@ -31,7 +31,7 @@ def write_log(dir, name = "log.txt", lines = None):
         return
     
     if (not os.path.exists(dir)):
-        os.mkdir(dir)
+        os.makedirs(dir)
 
     log_path = os.path.join(dir, name)
 

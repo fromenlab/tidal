@@ -11,7 +11,7 @@ from gui.panel_setup import SetupPanel
 from api.TIDAL import TIDAL
 
 if __name__ == "__main__":
-    tidal = TIDAL(tsi_port='COM7', motor_port='COM8')
+    tidal = TIDAL(tsi_port='/dev/ttyACM0', motor_port='/dev/ttyACM1')
 
     root = tk.Tk()
     root.columnconfigure(0,weight=1)
@@ -60,6 +60,7 @@ if __name__ == "__main__":
     frf = ttk.Frame(panel_notebook)
     panel_notebook.add(frf, text="Flow Meter")
     recorder_panel = recorder.RecorderPanel(frf, tidal)
+    plot_panel = PlotPanel(frf)
 
     for lobe in tidal.lobes:
         fr = ttk.Frame(panel_notebook)
@@ -76,7 +77,7 @@ if __name__ == "__main__":
         fr_exhale.grid(column=1, row=0, sticky=tk.EW, padx=10)
         fr.rowconfigure(0, weight=1)
 
-    log_panel = LogPanel(frame_console_out, tidal)
+    # log_panel = LogPanel(frame_console_out, tidal)
     setup_panel = SetupPanel(f1, tidal)
 
 

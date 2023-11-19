@@ -46,6 +46,7 @@ class Interactor:
         # if poly.figure is None:
         #     raise RuntimeError('You must first add the polygon to a figure '
         #                        'or canvas before defining the interactor')
+        self.bezier = None
         self.ax = ax
         canvas = poly.figure.canvas
         self.control_poly = poly
@@ -151,7 +152,7 @@ class Interactor:
         elif event.key == 'i':
             self.control_x.append(event.xdata)
             self.control_y.append(event.ydata)
-            self.control_x, self.control_y = [list(_) for _ in zip(*sorted(zip(self.control_x, self.control_y)))]
+            self.order_points()
             self.update_bezier()
         if self.bezier_line.stale:
             self.canvas.draw_idle()
@@ -169,6 +170,14 @@ class Interactor:
 
         self.control_x[self._ind] = event.xdata
         self.control_y[self._ind] = event.ydata
+        self.update_bezier()
+
+    def order_points(self):
+        self.control_x, self.control_y = [list(_) for _ in zip(*sorted(zip(self.control_x, self.control_y)))]
+        self.update_bezier()
+
+    def flip_points(self):
+        self.control_x = [((0.5-x)+0.5) for x in self.control_x]
         self.update_bezier()
             
     def build_bezier(self, n = 200):
@@ -215,13 +224,18 @@ class BezierPanel:
 
         button_log = tk.Button(fr_button, text="Log", command = self.log_points)
         button_reset = tk.Button(fr_button, text="Reset", command = self.reset_points)
+        button_order = tk.Button(fr_button, text="Order", command = self.order_points)
+        button_flip = tk.Button(fr_button, text="Flip", command = self.flip_points)
         button_save = tk.Button(fr_button, text="Save", command = self.save_points)
         button_load = tk.Button(fr_button, text="Load", command = self.load_points)
 
-        button_log.grid(row=0, column=0, padx=5, sticky = tk.EW)
-        button_reset.grid(row=0, column=1, padx=5, sticky = tk.EW)
-        button_save.grid(row=0, column=2, padx=5, sticky = tk.EW)
-        button_load.grid(row=0, column=3, padx=5, sticky = tk.EW)
+        button_load.pack(padx=5, side = tk.LEFT)
+        button_log.pack(padx=5, side = tk.LEFT)
+        button_order.pack(padx=5, side = tk.LEFT)
+        button_flip.pack(padx=5, side = tk.LEFT)
+        button_save.pack(padx=5, side = tk.LEFT)
+        button_reset.pack(padx=5, side = tk.LEFT)
+        
 
         fr_button.pack(fill='x', pady=10)
     
@@ -252,6 +266,12 @@ class BezierPanel:
         self.interactor.control_x = [0]
         self.interactor.control_y = [0]
         self.interactor.update_bezier()
+
+    def order_points(self):
+        self.interactor.order_points()
+
+    def flip_points(self):
+        self.interactor.flip_points()
 
     def save_points(self):
         points = {'x': self.interactor.control_x, 'y': self.interactor.control_y}

@@ -40,7 +40,7 @@ class PlotPanel:
         frame_run.columnconfigure(0, weight=1)
 
         # Run options
-        button_run = tk.Button(frame_run, text = 'Make Plot', command = lambda:self.run(), padx=10, pady=10)
+        button_run = tk.Button(frame_run, text = 'Make Interactive Plot', command = lambda:self.run(), padx=10, pady=10)
         button_run.grid(column=0, row = 0, padx=10, pady=10, sticky=tk.EW)
 
     def run(self):

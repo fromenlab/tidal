@@ -26,7 +26,6 @@ class RecorderPanel:
         fr_pad.grid(padx=10, pady=10, sticky=tk.NSEW)
         fr_pad.columnconfigure(0,weight=1)
 
-        self.entry_input = self.make_path_entry(fr_pad)
         self.make_conditions_entry(fr_pad)
         self.notes = self.make_text_entry(fr_pad)
         self.make_run_frame(fr_pad)
@@ -78,26 +77,6 @@ class RecorderPanel:
 
             self.conditions[condition] = entry
 
-
-    def make_path_entry(self, parent):
-            # Set frames for layout
-        frame_paths = tk.Frame(parent)
-        frame_paths.grid(sticky = tk.EW)
-        frame_paths.columnconfigure(index=1, weight=1)
-
-        button_input = tk.Button(frame_paths, text = 'Log Folder', command = lambda:self.select_folder(entry_input))
-        button_input.grid(row = 0, column = 0, padx=5, sticky=tk.EW)
-        entry_input = tk.Entry(frame_paths)
-        entry_input.grid(row=0, column=1, padx = 5, sticky=tk.EW)
-
-        return entry_input
-
-    def select_folder(self, entry):
-        folder_path = filedialog.askdirectory()
-        entry.delete(0, tk.END)
-        entry.insert(0, folder_path)
-        self.output_path = folder_path
-
     def make_run_frame(self, parent):
 
         frame_run = tk.Frame(parent)
@@ -126,21 +105,15 @@ class RecorderPanel:
 log_process = None
 
 def run(tidal: TIDAL, panel, event):
-    # This method needs to be refactored
     print("Run clicked")
     global log_process
-    # notes = panel.get_notes()
-    # id, date = utils.make_id(notes)
-    # output_dir = panel.entry_input.get()
-    # panel.run_folder, panel.data_folder = utils.make_run_folder(output_dir=output_dir, id = id)
     utils.write_log(dir=tidal.get_run_dir(), name="flow-log.txt", lines=panel.get_log_lines(date=''))
-    # tidal.tsi.set_output_dir(panel.data_folder)
-    # tidal.set_run_id(id)
-    # tidal.set_data_dir(panel.data_folder)
+
     if tidal.tsi_connected:
         tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
     if log_process is not None:
         log_process.terminate()
+
     tidal.get_tsi().set_output_dir(tidal.get_data_dir()) # breaks standalone behavior
     log_process = Process(target=log_data, args=(tidal.get_tsi(), event,))
     log_process.start()
@@ -159,12 +132,8 @@ def run_plot_live(tidal: TIDAL, panel, event):
 
 def log_data(tsi_instance: TSI, event):
     # Read and save set of 1000 flow measurements until terminated
-
-    # tsi_instance.establish_connection()
     tsi_instance.connect()
-    # tidal_instance.connect_tsi()
-    # tsi_instance = tidal_instance.get_tsi()
-    # tsi_instance.set_output_dir(tidal_instance.get_data_dir())
+
     response = tsi_instance.query_connection(message="SSR0010\r")
     print(f'Set sample rate: {response}')
 
@@ -175,7 +144,7 @@ def log_data(tsi_instance: TSI, event):
     while not event.is_set():
         tsi_instance.query_flow_set()
 
-    print("Stop logging")
+    print("Logging complete")
     tsi_instance.close()
     event.clear()
 
@@ -204,6 +173,8 @@ def plot_live(tsi_instance: TSI, event):
     # https://matplotlib.org/stable/api/animation_api.html
     # https://matplotlib.org/stable/gallery/animation/simple_anim.html
 
+    print("Displaying live plot. Data not recorded.")
+
     # Set up plot
     from matplotlib.animation import FuncAnimation
     import matplotlib.pyplot as plt
@@ -231,24 +202,12 @@ def plot_live(tsi_instance: TSI, event):
     # _not_ be temporally accurate
     plt.show()
 
+    # After closing the plot window
     event.clear()
+    tsi_instance.close()
     
 def stop(event):
     # Stop logging
+    print("Stopping data collection...")
     event.set()
     return
-
-if __name__ == "__main__":
-    tidal = TIDAL()
-    tidal.set_tsi_port('COM6')
-    # tidal.connect_tsi()
-
-    root = tk.Tk()
-    root.columnconfigure(0,weight=1)
-
-    frame = tk.Frame(root, width=100, height=100)
-    frame.columnconfigure(0,weight=1)
-    RecorderPanel(frame, tidal_instance=tidal)
-    frame.grid(padx=10, pady=10, sticky=tk.NSEW, column=0, row=0)
-
-    root.mainloop()

@@ -109,6 +109,7 @@ class ManeuverPanel:
         drop.current(0)
         drop.grid(row=rows, column=1, sticky=tk.EW, padx=5, pady=5)
         self.order = drop
+        self.tidal_instance.order_entry = drop
 
         button = tk.Button(frame, text = 'Update Global Settings', command=self.update_global_settings)
         button.grid(sticky=tk.EW, padx=5, pady=5, column=0)
@@ -156,7 +157,7 @@ class ManeuverPanel:
         button_check = tk.Button(fr_breath_count, text = 'Check Parameters', command = self.check_settings)
         button_check.grid(row = 0, padx=5, pady=5, sticky=tk.EW)
 
-        button_run = tk.Button(fr_breath_count, text = 'Run', command = self.run, height=3)
+        button_run = tk.Button(fr_breath_count, text = 'Run Constant Profile', command = self.run, height=3)
         button_run.grid(row = 1, padx=5, pady=5, sticky=tk.EW)
 
     #########################

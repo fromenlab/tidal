@@ -80,14 +80,23 @@ class ProfileManeuverPanel:
         profile_frame.pack(side = tk.TOP, expand=True, fill=tk.X)
         profile_frame.columnconfigure(0, weight=1)
 
-        button_update = tk.Button(profile_frame, text = 'Update Profile', command = self.update_profile)
+        button_update = tk.Button(profile_frame, text = 'Push to Controller', command = self.update_profile)
         button_run = tk.Button(profile_frame, text = 'Run Variable Profile', command = self.run, height = 3)
 
         button_update.grid(row = 0, padx=5, pady=5, sticky=tk.EW)
         button_run.grid(row = 1, padx=5, pady=5, sticky=tk.EW)
 
     def update_profile(self):
-        pass
+        print("Updating profiles...")
+        for lobe in self.lobes:
+            print(f"Updating {lobe.name}...")
+            lobe.update_variable_profile_params()
+        
+        print("Writing file...")
+        self.tidal_instance.update_variable_profile()
+
+        print("Done")
+        
 
     def run(self):
         pass

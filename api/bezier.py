@@ -27,7 +27,7 @@ class Bezier:
                 recursed_points.append(Point(x,y))
             return self.get_point_at_parameter(recursed_points, t)
         
-    def get_curve_coords(self, n):
+    def get_curve_coords(self, n = 200):
         curve_points = []  
         for k in range(n):
             t = float(k) / (n - 1)
@@ -36,3 +36,18 @@ class Bezier:
         x, y = np.column_stack([point.get_coords() for point in curve_points])
 
         return x, y
+    
+    def get_interval_coords(self, n):
+        # Return y values at equally spaced x values
+        # Implicitly remap space to x bounds of control points
+        x_points = np.linspace(start=self.control_points[0].x, 
+                               stop=self.control_points[-1].x, 
+                               num=n, endpoint=True)
+        xp, fp = self.get_curve_coords()
+
+        y_points = np.interp(x_points, xp, fp)
+
+        x_points, y_points = [list(_) for _ in zip(*sorted(zip(x_points, y_points)))]
+
+        return x_points, y_points
+        

@@ -28,14 +28,20 @@ class SetupPanel:
         fr.grid(sticky=tk.NSEW)
         fr.columnconfigure(0,weight=1)
 
-        # self.entry_input = self.make_log_entry(fr)
+        self.make_config_entry(fr)
         self.make_log_entry(fr)
         self.make_tsi_entry(fr)
         self.make_arduino_entry(fr)
         self.make_run_entry(fr)
-        # self.make_conditions_entry(fr)
-        # self.notes = self.make_text_entry(fr)
-        # self.make_run_frame(fr)
+
+    def make_config_entry(self, parent):
+        frame_config = ttk.Labelframe(parent, text = 'Configuration')
+        button_load = tk.Button(frame_config, text = 'Load', command = lambda:self.tidal.load())
+        button_save = tk.Button(frame_config, text = 'Save', command = lambda:self.tidal.save())
+
+        button_load.pack(side = tk.LEFT, padx=5, expand = True, fill = tk.X, pady=5)
+        button_save.pack(side = tk.LEFT, padx=5, expand = True, fill = tk.X, pady=5)
+        frame_config.grid(sticky=tk.EW)
 
     def make_log_entry(self, parent):
         # Set frames for layout
@@ -125,18 +131,19 @@ class SetupPanel:
         if button['text'] == "Connect":
             try:
                 self.tidal.set_tsi_port(port)
-                button['text'] = "Disconnect"
-                print(f"Connected on {port}")
+                self.tidal.connect_tsi()
             except:
                 print("There was a problem connecting")
+            else:
+                button['text'] = "Disconnect"
             
         elif button['text'] == "Disconnect":
             try:
                 self.tidal.disconnect_tsi()
-                button['text'] = "Connect"
-                print(f"Disconnected from {port}")
             except:
                 print("There was a problem disconnecting")
+            else:
+                button['text'] = "Connect"
 
     def connect_arduino(self, entry, button):
         port = entry.get()
@@ -144,18 +151,18 @@ class SetupPanel:
             try:
                 self.tidal.set_motor_port(port)
                 self.tidal.connect_motors()
-                button['text'] = "Disconnect"
-                print(f"Connected on {port}")
             except:
                 print("There was a problem connecting")
+            else:
+                button['text'] = "Disconnect"
             
         elif button['text'] == "Disconnect":
             try:
                 self.tidal.disconnect_motors()
-                button['text'] = "Connect"
-                print(f"Disconnected from {port}")
             except:
                 print("There was a problem disconnecting")
+            else:
+                button['text'] = "Connect"
 
     def initialize_run(self, path_entry, button, description_entry):
         if button['text'] == "Initialize":
@@ -175,18 +182,26 @@ class SetupPanel:
                 # Create the log files
                 utils.write_log(dir=run_folder, lines = get_software_version())
                 utils.write_log(dir=run_folder, lines=[f"Log created (UTC): {date}", notes])
-                button['text'] = "Conclude"
-                print("Run initialized")
             except:
                 print("There was a problem creating the structure")
+            else:
+                button['text'] = "Clear"
+                print("Run initialized")
             
-        elif button['text'] == "Conclude":
+        elif button['text'] == "Clear":
+            # Original intent was to make this a 'conclude' functionality -- future feature
             try:
+                # TODO: Stop reading and close flow meter connection
+                pass                
+            except:
+                print("There was a problem clearing the run")
+            else:
+                print("Run cleared")
+                path_entry.delete(0, tk.END)
                 description_entry.delete('1.0', tk.END)
                 button['text'] = "Initialize"
-                print("Run concluded")
-            except:
-                print("There was a problem concluding the run")
+                
+
 
 
 if __name__ == "__main__":

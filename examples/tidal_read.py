@@ -2,7 +2,7 @@ import os
 import json
 
 # %%
-f = open('examples/tidal.json', 'r')
+f = open('config.tidal', 'r')
 d = json.load(f)
 
 # %%
@@ -18,21 +18,11 @@ d['lobes'][0]
 d['lobes']['RU'] # does not work
 
 # %%
-d['lobes'][0]['profile_delay']
+d['lobes'][0]['step_delay_constant']
 
 # %%
-d['lobes'][0]['profile_delay'][-1]
+d['lobes'][0]['inhale_control_points']
 
 # %%
-d['lobes'][0]['profile_delay'][1]
-
-# %%
-d['lobes'][0]['profile_delay'][0]['control_points']
-
-# %%
-d['lobes'][0]['profile_delay'][0]['control_points'] = [1,2,5]
-
-# %%
-d['lobes'][0]['profile_delay'][0]['control_points']
-
-
+d['lobes'][0]['inhale_control_points']['x']
+d['lobes'][0]['inhale_control_points']['y']

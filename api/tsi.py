@@ -15,25 +15,35 @@ class TSI:
     ###
 
     def connect(self, port = None):
+        # Change the port if specified manually
         if port is not None:
             self.port = port
             
-        self.dev = serial.Serial(
-            self.port,
-            baudrate = 38400,
-            bytesize = serial.EIGHTBITS,
-            xonxoff = False,
-            parity = serial.PARITY_NONE,
-            stopbits = serial.STOPBITS_ONE,
-            timeout = 0.5,
-            rtscts = False,
-            dsrdtr = False
-        )
-
-        sleep(1)
+        try: 
+            self.dev = serial.Serial(
+                self.port,
+                baudrate = 38400,
+                bytesize = serial.EIGHTBITS,
+                xonxoff = False,
+                parity = serial.PARITY_NONE,
+                stopbits = serial.STOPBITS_ONE,
+                timeout = 0.5,
+                rtscts = False,
+                dsrdtr = False
+            )
+            sleep(1)
+        except serial.SerialException as e:
+            print(f"There was an error connecting: {e}")
+        else:
+            print(f"Connected to flow meter on port {self.port}")
 
     def close(self):
-        self.dev.close()
+        try:
+            self.dev.close()
+        except:
+            print(f"There was an error disconnecting on port {self.port}")
+        else:
+            print(f"Disconnected from {self.port}")
 
     def read(self):
         line = self.dev.readline().decode('ascii').strip()
