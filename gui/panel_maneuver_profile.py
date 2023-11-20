@@ -95,11 +95,24 @@ class ProfileManeuverPanel:
         print("Writing file...")
         self.tidal_instance.update_variable_profile()
 
+        # Send sequences to update step count
+        self.update_lobe_settings()
+
         print("Done")
         
+    def update_lobe_settings(self):
+        for index, lobe in enumerate(self.lobes):
+            selected_lobe = [0,0,0,0,0]
+            selected_lobe[index] = 1
+            selected_lobe = ''.join([str(_) for _ in selected_lobe])
+
+            if lobe.gui_constant_step_entry.get():
+                self.ard.set_lobe_default('steps', lobe.step_count_variable, selected_lobe)
 
     def run(self):
-        pass
+        print(self.ard.check_parameters())
+        print(self.ard.check_lobe_delays())
+        self.ard.run_profile_variable()
 
 
 if __name__ == "__main__":

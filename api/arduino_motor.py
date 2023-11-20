@@ -109,6 +109,10 @@ class Arduino:
     def run_maneuver(self):
         return self.query('RUN')
 
-    def run_profile(self):
+    def run_profile_constant(self):
         # Set breathing parameters before running profile
-        return self.query('PROFILE')
+        return self.query('PROFILEC')
+    
+    def run_profile_variable(self):
+        # Set breathing parameters before running profile
+        return self.query('PROFILEV')

@@ -16,7 +16,7 @@ class TIDAL():
         self.arduino = None
         self.motors_connected = False
 
-        self.log_dir = os.path.join(os.path.dirname(__file__), r"logs")
+        self.log_dir = r'./logs'
         self.run_dir = r'./logs/runs'
         self.data_dir = r'./logs/runs/data'
         self.logger = None

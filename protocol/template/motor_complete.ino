@@ -5,7 +5,7 @@
 // Maneuver arrays
 const PROGMEM unsigned int identity[500] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
-const PROGMEM unsigned int identity_inhale[5][500] = {
+const PROGMEM unsigned int stored_inhale[5][500] = {
   $sub_inhale_ru,
   $sub_inhale_rm,
   $sub_inhale_rl,
@@ -13,7 +13,7 @@ const PROGMEM unsigned int identity_inhale[5][500] = {
   $sub_inhale_ll
   };
 
-const PROGMEM unsigned int identity_exhale[5][500] = {
+const PROGMEM unsigned int stored_exhale[5][500] = {
   $sub_exhale_ru,
   $sub_exhale_rm,
   $sub_exhale_rl,
@@ -229,26 +229,6 @@ void prepareMovement(int whichMotor, int steps) {
   volatile stepperInfo& si = steppers[whichMotor];
   si.dirFunc( steps < 0 ? HIGH : LOW );
   si.dir = steps > 0 ? 1 : -1;
-  // p = steps > 0 ? &inhale_delays : &exhale_delays;
-  // TODO: update delay values for inhale or exhale. Retrieve from progmem or lobe default
-  unsigned int displayInt;
-  if (si.dir == inhale) {
-    for (int k = 0; k < 500; k++) {
-    displayInt = pgm_read_word_near(&(identity_inhale[whichMotor][k]));
-    delays[whichMotor][k] = displayInt;
-    Serial.print(displayInt);
-    Serial.print(',');
-  }
-  } else {
-    for (int k = 0; k < 500; k++) {
-    displayInt = pgm_read_word_near(&(identity_exhale[whichMotor][k]));
-    delays[whichMotor][k] = displayInt;
-    Serial.print(displayInt);
-    Serial.print(',');
-  }
-  }
-  Serial.println();
-  
   si.totalSteps = abs(steps);
   resetStepper(si);
   remainingSteppersFlag |= (1 << whichMotor);
@@ -413,9 +393,11 @@ void checkType() {
         }
         break;
     case 'P':
-        if (strcmp(tempChars, "PROFILE") == 0)
+        if (strcmp(tempChars, "PROFILEC") == 0)
         {
             run_profile_constant();
+        } else if (strcmp(tempChars, "PROFILEV") == 0) {
+            run_profile_variable();
         } else
         {
             printInvalid();
@@ -640,14 +622,6 @@ void parseSM() {
 
 }
 
-void prepareM(int i, int steps) {
-    Serial.print(i);
-    Serial.print(F(": "));
-    Serial.print(steps);
-    Serial.println(" steps");
-    prepareMovement(i, steps);
-}
-
 void parseSAI() {
     // Write
     // Input: SAI/{Index}/{Value}/{Motors}
@@ -816,7 +790,27 @@ void parseC() {
     
 }
 
+void prepareM(int i, int steps) {
+    Serial.print(i);
+    Serial.print(F(": "));
+    Serial.print(steps);
+    Serial.println(" steps");
+    prepareMovement(i, steps);
+}
+
+void prepare_delays_constant() {
+    // Set delays to default for each motor
+    for (size_t i = 0; i < 5; i++)
+        {
+            for (size_t j = 0; j < 500; j++)
+            {
+                delays[i][j] = steppers[i].default_delay;
+            }
+        }
+}
+
 void run_profile_constant() {
+prepare_delays_constant();
     delay(DELAY_PROFILE * 1000);
 
     for (int n = 0; n < PROFILE_CYCLES; n++)
@@ -839,11 +833,64 @@ void run_profile_constant() {
     }
 }
 
+    // Example of reading from progmem
+    // unsigned int displayInt;
+    // displayInt = pgm_read_word_near(&(stored_inhale[whichMotor][k]));
+    // delays[whichMotor][k] = displayInt;
+    // Serial.print(displayInt);
+    // Serial.print(',');
+
+void prepare_delays_variable(int maneuver) {
+    if (maneuver == inhale) {
+        for (int whichMotor = 0; whichMotor < 5; whichMotor ++) {
+            for (int k = 0; k < 500; k++) {
+                delays[whichMotor][k] = pgm_read_word_near(&(stored_inhale[whichMotor][k]));
+            }
+        }
+    } else {
+        for (int whichMotor = 0; whichMotor < 5; whichMotor ++) {
+            for (int k = 0; k < 500; k++) {
+                delays[whichMotor][k] = pgm_read_word_near(&(stored_exhale[whichMotor][k]));
+            }
+        }
+    }
+}
+
+void run_profile_variable() {
+    // Delay profile time
+    delay(DELAY_PROFILE * 1000);
+    // for number of breath cycles
+    for (int n = 0; n < PROFILE_CYCLES; n++) {
+        // Prepare first movement delays
+        prepare_delays_variable(START_MANEUVER);
+
+        // Prepare first movement
+        for (int i = 0; i < 5; i++)
+        {
+            prepareM(i, START_MANEUVER * steppers[i].default_steps);
+        }
+        // First movement (inhale) delay period
+        delay(DELAY_INHALE * 1000);
+        runAndWait();
+
+        // Prepare second movement delays
+        prepare_delays_variable(START_MANEUVER*-1);
+        for (int i = 0; i < 5; i++)
+        {
+            prepareM(i, START_MANEUVER * -1 * steppers[i].default_steps);
+        }
+        // Second movement delay period
+        delay(DELAY_EXHALE * 1000);
+        runAndWait();
+    }
+}
+
 void printInvalid() {
     Serial.println(F("Invalid command"));
 }
 
 void printDelays() {
+    Serial.println(F("Current delays:"));
   for (size_t i = 0; i < 5; i++)
         {
           Serial.print(F("Lobe "));
@@ -852,6 +899,28 @@ void printDelays() {
             for (size_t j = 0; j < 500; j++)
             {
                 Serial.print(delays[i][j]);
+                Serial.print(F(","));
+            }
+            Serial.println("}");
+        }
+        Serial.println(F("Stored inhale delays:"));
+        for (int whichMotor = 0; whichMotor < 5; whichMotor ++) {
+            Serial.print(F("Lobe "));
+            Serial.print(whichMotor);
+            Serial.print(F(": {"));
+            for (int k = 0; k < 500; k++) {
+                Serial.print(pgm_read_word_near(&(stored_inhale[whichMotor][k])));
+                Serial.print(F(","));
+            }
+            Serial.println("}");
+        }
+        Serial.println(F("Stored exhale delays:"));
+        for (int whichMotor = 0; whichMotor < 5; whichMotor ++) {
+            Serial.print(F("Lobe "));
+            Serial.print(whichMotor);
+            Serial.print(F(": {"));
+            for (int k = 0; k < 500; k++) {
+                Serial.print(pgm_read_word_near(&(stored_exhale[whichMotor][k])));
                 Serial.print(F(","));
             }
             Serial.println("}");

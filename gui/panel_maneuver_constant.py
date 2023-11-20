@@ -220,7 +220,7 @@ class ManeuverPanel:
     def run(self):
         print(Arduino.check_parameters(self.ard))
         print(Arduino.check_lobe_delays(self.ard))
-        Arduino.run_profile(self.ard)
+        Arduino.run_profile_constant(self.ard)
 
 if __name__ == "__main__":
     # arduino = Arduino('/dev/ttyACM0')
