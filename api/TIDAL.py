@@ -17,8 +17,9 @@ class TIDAL():
         self.motors_connected = False
 
         self.log_dir = r'./logs'
-        self.run_dir = r'./logs/runs'
-        self.data_dir = r'./logs/runs/data'
+        self.run_dir = os.path.join(self.log_dir, "runs")
+        self.data_dir = os.path.join(self.run_dir, "data")
+        self.log_file = os.path.join(self.run_dir, "log.txt")
         self._logger = None
 
         # Property values
@@ -252,8 +253,10 @@ class TIDAL():
     # The run dir is where information on each set of experimental conditions and associated data will be recorded
     def set_run_dir(self, dir):
         self.run_dir = dir
+        self.data_dir = os.path.join(self.run_dir, "data")
+        self.log_file = os.path.join(self.run_dir, "log.txt")
         if self.logger:
-            self.logger.set_file_output(os.path.join(dir, "log.txt"))
+            self.logger.set_file_output(self.log_file)
 
     def get_run_dir(self):
         return self.run_dir

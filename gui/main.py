@@ -25,44 +25,55 @@ if __name__ == "__main__":
     # ttk.Panedwindow showed limited configuration for sash on Windows, Conda python
     # https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/panedwindow.html
 
+    # Main area
     pane_main = tk.PanedWindow(root, orient=tk.HORIZONTAL, sashrelief='flat', sashwidth = 5, background = "#3845d1", borderwidth = 0)
-    f1 = tk.Frame(pane_main)#, highlightbackground="blue", highlightthickness=2)
-    f1.columnconfigure(0, weight=1)
-    f2 = tk.Frame(pane_main)#, highlightbackground="blue", highlightthickness=2)
-    f2.columnconfigure(0,weight=1)
-    f2.rowconfigure(0,weight=1)   
-    pane_main.add(f1, minsize = minw, stretch='always')
-    pane_main.add(f2, minsize = minw, stretch='always')
+    
+    # Display framework -- sidebar and main window
+    frame_sidebar = tk.Frame(pane_main)#, highlightbackground="blue", highlightthickness=2)
+    frame_sidebar.columnconfigure(0, weight=1)
+    frame_main_window = tk.Frame(pane_main)#, highlightbackground="blue", highlightthickness=2)
+    frame_main_window.columnconfigure(0,weight=1)
+    frame_main_window.rowconfigure(0,weight=1)  
 
+    # Apply layout 
+    pane_main.add(frame_sidebar, minsize = minw, stretch='always')
+    pane_main.add(frame_main_window, minsize = minw, stretch='always')
     pane_main.grid(sticky=tk.NSEW)
 
-    pane_interact = tk.PanedWindow(f2, orient=tk.VERTICAL, sashrelief='flat', sashwidth = 5, background = "#3845d1", borderwidth = 0)
+    # Secondary panels in main window -- interaction space and console printouts
+    pane_interact = tk.PanedWindow(frame_main_window, orient=tk.VERTICAL, sashrelief='flat', sashwidth = 5, background = "#3845d1", borderwidth = 0)
     frame_notebook = tk.Frame(pane_interact, height=minh*9)#, highlightbackground="blue", highlightthickness=2)
     frame_console_out = tk.Frame(pane_interact, pady=2)#, height=100, highlightbackground="blue", highlightthickness=2)
+    
+    # Apply layout
     pane_interact.add(frame_notebook, minsize = minh, stretch = 'always')
     pane_interact.add(frame_console_out, minsize = 10, stretch = 'never')
-
     pane_interact.grid(sticky=tk.NSEW)
     pane_interact.rowconfigure(0,weight=1)
 
+    # Framework for interactive area
     panel_notebook = ttk.Notebook(frame_notebook)
     panel_notebook.pack(fill='both', expand=True)
 
-    frm = ttk.Frame(panel_notebook, padding=5)
-    panel_notebook.add(frm, text="Maneuver")
-    maneuver_panel = ManeuverPanel(frm, tidal)
-    profile_maneuver_panel = ProfileManeuverPanel(frm, tidal)
+    tab_maneuver = ttk.Frame(panel_notebook, padding=5)
+    panel_notebook.add(tab_maneuver, text="Maneuver")
+    tab_maneuver.columnconfigure(0, weight=1)
+    tab_maneuver.columnconfigure(1, weight=1)
+
+    tab_flow = ttk.Frame(panel_notebook)
+    panel_notebook.add(tab_flow, text="Flow Meter")
+    
+    # Add widgets to UI framework
+    log_panel = LogPanel(frame_console_out, tidal)
+    setup_panel = SetupPanel(frame_sidebar, tidal)
+
+    maneuver_panel = ManeuverPanel(tab_maneuver, tidal)
+    profile_maneuver_panel = ProfileManeuverPanel(tab_maneuver, tidal)
     maneuver_panel.frame.pack(side=tk.LEFT, anchor=tk.NW, expand=True, fill = tk.BOTH)
     profile_maneuver_panel.frame.pack(side=tk.LEFT, anchor=tk.NE, expand=True, fill = tk.BOTH)
-    # profile_maneuver_panel.frame.pack(side=tk.LEFT, anchor=tk.NE)
-    # profile_maneuver_panel.frame.grid(row=0, column=1, sticky=tk.NSEW)
-    frm.columnconfigure(0, weight=1)
-    frm.columnconfigure(1, weight=1)
 
-    frf = ttk.Frame(panel_notebook)
-    panel_notebook.add(frf, text="Flow Meter")
-    recorder_panel = recorder.RecorderPanel(frf, tidal)
-    plot_panel = PlotPanel(frf)
+    recorder_panel = recorder.RecorderPanel(tab_flow, tidal)
+    plot_panel = PlotPanel(tab_flow, tidal)
 
     for lobe in tidal.lobes:
         fr = ttk.Frame(panel_notebook)
@@ -79,8 +90,7 @@ if __name__ == "__main__":
         fr_exhale.grid(column=1, row=0, sticky=tk.EW, padx=10)
         fr.rowconfigure(0, weight=1)
 
-    log_panel = LogPanel(frame_console_out, tidal)
-    setup_panel = SetupPanel(f1, tidal)
+    
 
 
     root.mainloop()

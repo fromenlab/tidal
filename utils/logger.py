@@ -14,11 +14,12 @@ class Logger():
         self.console_output = object
     
     def write(self, string):
-        self.console_output.configure(state = 'normal')
-        self.console_output.insert(tk.END, string)
-        self.console_output.configure(state = 'disabled')
-        self.console_output.see('end')
-        self.console_output.update_idletasks()
+        if self.console_output:
+            self.console_output.configure(state = 'normal')
+            self.console_output.insert(tk.END, string)
+            self.console_output.configure(state = 'disabled')
+            self.console_output.see('end')
+            self.console_output.update_idletasks()
         
         if self.file_output:
             # TODO: Decide whether to pass file name or directory, how to make modular

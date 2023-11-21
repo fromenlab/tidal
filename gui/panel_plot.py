@@ -5,9 +5,10 @@ from tkinter import filedialog
 
 # Can be run as standalone interface
 class PlotPanel:
-    def __init__(self, parent):
+    def __init__(self, parent, tidal_instance = None):
         self.parent = parent
         self.plot_process = None
+        self.tidal = tidal_instance
 
         fr_pad = tk.Frame(self.parent)
         fr_pad.grid(padx=10, pady=10, sticky=tk.NSEW)
@@ -48,7 +49,9 @@ class PlotPanel:
         button_stop.grid(column=1, row = 0, padx=10, pady=10, sticky=tk.EW)
 
     def run(self):
-        print(self.data_path)
+        print(f"Starting interactive plot server with data from:\n\t{self.data_path}\nPlease wait...")
+        
+        # Preprocess data
         df = pd.concat(
         [
             pd.read_csv(filename).assign(source=filename)[["0", "source"]] for filename in sorted(glob.glob(fr'{self.data_path}/*.csv'))
@@ -56,86 +59,14 @@ class PlotPanel:
         ignore_index=True
         )
 
-        # df.plot(y='0')
-
         df['time_s'] = df.index*(10/1000) # hard-coded sample rate at 10ms
         # df.columns # to display column names
-
-        pd.options.plotting.backend = "plotly"
-
-        fig = df.plot.line(x='time_s',y='0', markers=True)
-        fig.update_layout(
-            xaxis_title = "Time (s)",
-            yaxis_title = "Flow rate (SLPM)"
-        )
-
-        # fig.show()
-
-        import json
-        from dash import Dash, dcc, html, Input, Output, callback
-        import numpy as np
-
-        app = Dash()
-
-        app.layout = html.Div([
-            dcc.Graph(figure=fig, id = 'fig'),
-            html.Div([
-                html.B("Time (s): "),
-                html.Div(id='out-time')
-            ]),
-            html.Div([
-                html.B("Volume (L): "),
-                html.Div(id='out-vol')
-            ]),
-            html.Div([
-                html.B("Peak flow rate (SLPM): "),
-                html.Div(id='out-flow-peak')
-            ]),
-            html.Div([
-                html.B("Mean flow rate (SLPM): "),
-                html.Div(id='out-flow-mean')
-            ]),
-            html.Div([
-                html.B("Median flow rate (SLPM): "),
-                html.Div(id='out-flow-median')
-            ])
-        ])
-
-        @callback(
-            Output('out-time', 'children'),
-            Output('out-vol', 'children'),
-            Output('out-flow-peak', 'children'),
-            Output('out-flow-mean', 'children'),
-            Output('out-flow-median', 'children'),
-            Input('fig', 'selectedData'))
-        def display_integral(selectedData):
-            if selectedData is not None:
-                # print(json.dumps(selectedData, indent=4))
-                df_select = pd.DataFrame({'x' : [point['x'] for point in selectedData['points']], 
-                                          'y' : [point['y'] for point in selectedData['points']]})
-                
-                integral_area = np.trapz(y = df_select['y'], x = df_select['x'])
-                volume_L = integral_area/60 # conversion from SLPM to SL/sec
-                time_s = np.max(df_select['x']) - np.min(df_select['x'])
-                flow_peak_slpm = np.max(df_select['y'])
-                flow_average_slpm = np.mean(df_select['y'])
-                flow_median_slpm = np.median(df_select['y'])
-
-                outputs = [round(time_s, 3), 
-                           round(volume_L, 3), 
-                           round(flow_peak_slpm, 3), 
-                           round(flow_average_slpm, 3), 
-                           round(flow_median_slpm, 3)]
-
-                return outputs
-            else:
-                return '','','','',''
+        # Could just call fig.show() here if minimal interaction needed. Incompatible with panel output.
 
         from multiprocessing import Process
-        self.plot_process = Process(target=lambda: app.run_server(debug=True, use_reloader = False))
+        self.plot_process = Process(target=start_interactive_plot, args=(df,self.tidal.log_file,))
         self.plot_process.start()
-        import webbrowser
-        webbrowser.open_new("http://localhost:8050/")
+        
 
     def terminate_plot(self):
         if self.plot_process is not None:
@@ -146,14 +77,114 @@ class PlotPanel:
             else:
                 print("Interactive plot process closed")
 
+def start_interactive_plot(df, log_file = None):
+    if log_file is not None:
+        import sys
+        from utils.logger import Logger
+        sys.stdout = Logger(file_output=log_file)
+
+    pd.options.plotting.backend = "plotly"
+    fig = df.plot.line(x='time_s',y='0', markers=True)
+    fig.update_layout(
+        xaxis_title = "Time (s)",
+        yaxis_title = "Flow rate (SLPM)"
+    )
+
+    import json
+    from dash import Dash, dcc, html, Input, Output, callback
+    import numpy as np
+
+    app = Dash()
+
+    app.layout = html.Div([
+        html.H1("Use the selection tools to display statistics"),
+        dcc.Graph(figure=fig, id = 'fig'),
+        html.Div([
+            html.B("Time (s): "),
+            html.Div(id='out-time')
+        ]),
+        html.Div([
+            html.B("Volume (L): "),
+            html.Div(id='out-vol')
+        ]),
+        html.Div([
+            html.B("Peak flow rate (SLPM): "),
+            html.Div(id='out-flow-peak')
+        ]),
+        html.Div([
+            html.B("Mean flow rate (SLPM): "),
+            html.Div(id='out-flow-mean')
+        ]),
+        html.Div([
+            html.B("Median flow rate (SLPM): "),
+            html.Div(id='out-flow-median')
+        ])
+    ])
+
+    @callback(
+        Output('out-time', 'children'),
+        Output('out-vol', 'children'),
+        Output('out-flow-peak', 'children'),
+        Output('out-flow-mean', 'children'),
+        Output('out-flow-median', 'children'),
+        Input('fig', 'selectedData'))
+    def display_integral(selectedData):
+        if selectedData is not None:
+            # print(json.dumps(selectedData, indent=4))
+            df_select = pd.DataFrame({'x' : [point['x'] for point in selectedData['points']], 
+                                        'y' : [point['y'] for point in selectedData['points']]})
+            
+            integral_area = np.trapz(y = df_select['y'], x = df_select['x'])
+            volume_L = integral_area/60 # conversion from SLPM to SL/sec
+            time_s = np.max(df_select['x']) - np.min(df_select['x'])
+            flow_peak_slpm = np.max(df_select['y'])
+            flow_average_slpm = np.mean(df_select['y'])
+            flow_median_slpm = np.median(df_select['y'])
+
+            outputs = [round(time_s, 3), 
+                        round(volume_L, 3), 
+                        round(flow_peak_slpm, 3), 
+                        round(flow_average_slpm, 3), 
+                        round(flow_median_slpm, 3)]
+
+            breath = {
+                'volume_L': volume_L,
+                'time_s': time_s,
+                'flow_peak_slpm': flow_peak_slpm,
+                'flow_average_slpm': flow_average_slpm,
+                'flow_median_slpm': flow_median_slpm,
+                'start': selectedData['points'][0],
+                'end': selectedData['points'][-1]
+                }
+
+            print(json.dumps(breath))
+
+            return outputs
+        else:
+            return '','','','',''
+
+    # Open before running app
+    import webbrowser
+    webbrowser.open_new("http://localhost:8050/")
+
+    app.run(debug = True, use_reloader = False)
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
     root.columnconfigure(0, weight=1)
+    from api.TIDAL import TIDAL
+    from utils.logger import Logger
+    tidal = TIDAL()
+    tidal.logger = Logger()
+    tidal.set_run_dir(tidal.run_dir)
+    import sys
+    sys.stdout = tidal.logger
 
     frame = tk.Frame(root, width=100, height=100)
     frame.columnconfigure(0, weight=1)
-    PlotPanel(frame)
+
+    PlotPanel(frame, tidal)
     frame.grid(padx=10, pady=10, sticky=tk.NSEW, column=0, row=0)
 
     root.mainloop()

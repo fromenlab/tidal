@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -192,7 +193,8 @@ class SetupPanel:
             # Original intent was to make this a 'conclude' functionality -- future feature
             try:
                 # TODO: Stop reading and close flow meter connection
-                pass                
+                # Reset log settings
+                self.tidal.set_run_dir(os.path.join(self.tidal.log_dir, "runs"))
             except:
                 print("There was a problem clearing the run")
             else:
@@ -206,7 +208,7 @@ class SetupPanel:
 
 if __name__ == "__main__":
     tidal = TIDAL()
-    tidal.set_motor_port('COM8')
+    # tidal.set_motor_port('COM8')
 
     root = tk.Tk()
     root.columnconfigure(0,weight=1)

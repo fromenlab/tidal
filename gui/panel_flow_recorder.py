@@ -115,23 +115,17 @@ def run(tidal: TIDAL, panel, event):
         log_process.terminate()
 
     tidal.get_tsi().set_output_dir(tidal.get_data_dir()) # breaks standalone behavior
-    log_process = Process(target=log_data, args=(tidal.get_tsi(), event,))
+    log_process = Process(target=log_data, args=(tidal.get_tsi(), tidal.log_file, event,))
     log_process.start()
     # log_data(tidal.get_tsi(), event)
     return
 
-def run_plot_live(tidal: TIDAL, panel, event):
-    global log_process
-    if tidal.tsi_connected:
-        tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
-    if log_process is not None:
-        log_process.terminate()
-    # log_process = Process(target=plot_live, args=(tidal.get_tsi(), event,))
-    # log_process.start()
-    plot_live(tidal.get_tsi(), event)
-    return
+def log_data(tsi_instance: TSI, log_file, event):
+    if log_file is not None:
+        import sys
+        from utils.logger import Logger
+        sys.stdout = Logger(file_output=log_file)
 
-def log_data(tsi_instance: TSI, event):
     # Read and save set of 1000 flow measurements until terminated
     tsi_instance.connect()
 
@@ -148,6 +142,17 @@ def log_data(tsi_instance: TSI, event):
     print("Logging complete")
     tsi_instance.close()
     event.clear()
+
+def run_plot_live(tidal: TIDAL, panel, event):
+    global log_process
+    if tidal.tsi_connected:
+        tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
+    if log_process is not None:
+        log_process.terminate()
+    # log_process = Process(target=plot_live, args=(tidal.get_tsi(), event,))
+    # log_process.start()
+    plot_live(tidal.get_tsi(), event)
+    return
 
 from collections import deque
 class TSIPlot:
