@@ -9,15 +9,17 @@ class LogPanel():
     def __init__(self, parent, tidal_instance: TIDAL = None) -> None:
         self.parent = parent
         self.tidal_instance = tidal_instance
-        self.logger = Logger()
+        self._logger = Logger()
 
         self.make_console_view(parent)
 
-    def get_logger(self):
-        return self.logger
+    @property
+    def logger(self):
+        return self._logger
     
-    def set_logger(self, logger):
-        self.logger = logger
+    @logger.setter
+    def name(self, value):
+        self._logger = value
 
     def make_console_view(self, parent):
         console_view = scrolledtext.ScrolledText(parent, height=5)
@@ -28,7 +30,7 @@ class LogPanel():
         self.logger.set_console_output(console_view)
 
         sys.stdout = self.logger
-        self.tidal_instance.set_logger(self.logger)
+        self.tidal_instance.logger = self.logger
 
 if __name__ == "__main__":
 

@@ -191,8 +191,9 @@ class Interactor:
         self.canvas.draw()
 
 class BezierPanel:
-    def __init__(self, parent) -> None:
+    def __init__(self, parent, plot_title = '') -> None:
         self.parent = parent
+        self.plot_title = plot_title
 
         fr = parent
         # fr = tk.Frame(parent)
@@ -247,6 +248,7 @@ class BezierPanel:
         canvas.draw()
 
         # ax.set_title('Click and drag a point to move it')
+        ax.set_title(self.plot_title)
         ax.set_xlim((-0.1, 1.1))
         ax.set_ylim((-0.1, 1.1))
 
@@ -275,12 +277,12 @@ class BezierPanel:
 
     def save_points(self):
         points = {'x': self.interactor.control_x, 'y': self.interactor.control_y}
-        with filedialog.asksaveasfile() as f:
+        with filedialog.asksaveasfile(defaultextension=".cp", filetypes=[('Control Points','*.cp'), ('All files', '*.*')]) as f:
             json.dump(points, f, indent=4)
             print(f.name)
 
     def load_points(self):
-        with filedialog.askopenfile() as f:
+        with filedialog.askopenfile(defaultextension=".cp", filetypes=[('Control Points','*.cp'), ('All files', '*.*')]) as f:
             points = json.load(f)
             print(points)
             self.interactor.control_x = points['x']

@@ -95,10 +95,23 @@ class ProfileManeuverPanel:
         print("Writing file...")
         self.tidal_instance.update_variable_profile()
 
-        # Send sequences to update step count
+        # Send sequences to update global settings and step count
+        self.update_global_settings()
         self.update_lobe_settings()
 
         print("Done")
+
+    def update_global_settings(self):
+        if self.global_entries['Breath count'].get():
+            Arduino.set_breath_count(self.ard, self.global_entries['Breath count'].get())
+        if self.global_entries['Profile delay (s)'].get():
+            Arduino.set_delay(self.ard, maneuver='profile', delay=self.global_entries['Profile delay (s)'].get())
+        if self.global_entries['Delay inhale (s)'].get():
+            Arduino.set_delay(self.ard, maneuver='inhale', delay=self.global_entries['Delay inhale (s)'].get())
+        if self.global_entries['Delay exhale (s)'].get():
+            Arduino.set_delay(self.ard, maneuver='exhale', delay=self.global_entries['Delay exhale (s)'].get())
+        
+        Arduino.set_maneuver_order(self.ard, maneuver= 'exhale' if self.order.current() == 0 else 'inhale')
         
     def update_lobe_settings(self):
         for index, lobe in enumerate(self.lobes):
@@ -110,8 +123,8 @@ class ProfileManeuverPanel:
                 self.ard.set_lobe_default('steps', lobe.step_count_variable, selected_lobe)
 
     def run(self):
+        print("Running variable profile...")
         print(self.ard.check_parameters())
-        print(self.ard.check_lobe_delays())
         self.ard.run_profile_variable()
 
 

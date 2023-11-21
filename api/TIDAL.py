@@ -19,7 +19,7 @@ class TIDAL():
         self.log_dir = r'./logs'
         self.run_dir = r'./logs/runs'
         self.data_dir = r'./logs/runs/data'
-        self.logger = None
+        self._logger = None
 
         # Property values
         self.breath_count = None
@@ -33,8 +33,8 @@ class TIDAL():
         self.global_entries = {
             "Breath count": None, 
             "Profile delay (s)": None, 
-            "Inhale delay (s)": None, 
-            "Exhale delay (s)": None,
+            "Delay inhale (s)": None, 
+            "Delay exhale (s)": None,
             }
         self.order_entry = None
         
@@ -63,8 +63,8 @@ class TIDAL():
                 # Update TIDAL instance
                 self.breath_count = tidal_config['Breath count']
                 self.profile_delay_s = tidal_config['Profile delay (s)']
-                self.inhale_delay_s = tidal_config['Inhale delay (s)']
-                self.exhale_delay_s = tidal_config['Exhale delay (s)']
+                self.inhale_delay_s = tidal_config['Delay inhale (s)']
+                self.exhale_delay_s = tidal_config['Delay exhale (s)']
                 self.order = tidal_config['order']
                 for lobe in self.lobes:
                     for config in tidal_config['lobes']:
@@ -84,10 +84,10 @@ class TIDAL():
                 self.global_entries['Breath count'].insert(0, self.breath_count)
                 self.global_entries['Profile delay (s)'].delete(0, 'end')
                 self.global_entries['Profile delay (s)'].insert(0, self.profile_delay_s)
-                self.global_entries['Inhale delay (s)'].delete(0, 'end')
-                self.global_entries['Inhale delay (s)'].insert(0, self.inhale_delay_s)
-                self.global_entries['Exhale delay (s)'].delete(0, 'end')
-                self.global_entries['Exhale delay (s)'].insert(0, self.exhale_delay_s)
+                self.global_entries['Delay inhale (s)'].delete(0, 'end')
+                self.global_entries['Delay inhale (s)'].insert(0, self.inhale_delay_s)
+                self.global_entries['Delay exhale (s)'].delete(0, 'end')
+                self.global_entries['Delay exhale (s)'].insert(0, self.exhale_delay_s)
                 self.order_entry.current(self.order)
 
                 for lobe in self.lobes:
@@ -131,8 +131,8 @@ class TIDAL():
         # Update parameters
         self.breath_count =  self.global_entries['Breath count'].get()
         self.profile_delay_s = self.global_entries['Profile delay (s)'].get()
-        self.inhale_delay_s = self.global_entries['Inhale delay (s)'].get()
-        self.exhale_delay_s = self.global_entries['Exhale delay (s)'].get()
+        self.inhale_delay_s = self.global_entries['Delay inhale (s)'].get()
+        self.exhale_delay_s = self.global_entries['Delay exhale (s)'].get()
         self.order = self.order_entry.current()
         for lobe in self.lobes: lobe.update_variable_profile_params()
 
@@ -264,12 +264,14 @@ class TIDAL():
 
     def get_data_dir(self):
         return self.data_dir
-    
-    def set_logger(self, logger: Logger):
-        self.logger = logger
 
-    def get_logger(self):
-        return self.logger
+    @property
+    def logger(self):
+        return self._logger
+    
+    @logger.setter
+    def logger(self, logger: Logger):
+        self._logger = logger
     
     #
     # Variable profiles

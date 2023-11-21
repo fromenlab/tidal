@@ -791,10 +791,10 @@ void parseC() {
 }
 
 void prepareM(int i, int steps) {
-    Serial.print(i);
-    Serial.print(F(": "));
-    Serial.print(steps);
-    Serial.println(" steps");
+    // Serial.print(i);
+    // Serial.print(F(": "));
+    // Serial.print(steps);
+    // Serial.println(" steps");
     prepareMovement(i, steps);
 }
 

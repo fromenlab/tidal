@@ -71,13 +71,13 @@ if __name__ == "__main__":
         fr_inhale.columnconfigure(0, weight=1)
         fr_exhale = ttk.Frame(fr)
         fr_exhale.columnconfigure(0, weight=1)
-        lobe.gui_inhale_bezier = BezierPanel(fr_inhale)
-        lobe.gui_exhale_bezier = BezierPanel(fr_exhale)
+        lobe.gui_inhale_bezier = BezierPanel(fr_inhale, plot_title="Inhale")
+        lobe.gui_exhale_bezier = BezierPanel(fr_exhale, plot_title="Exhale")
         fr_inhale.grid(column=0, sticky=tk.EW, padx=10)
         fr_exhale.grid(column=1, row=0, sticky=tk.EW, padx=10)
         fr.rowconfigure(0, weight=1)
 
-    # log_panel = LogPanel(frame_console_out, tidal)
+    log_panel = LogPanel(frame_console_out, tidal)
     setup_panel = SetupPanel(f1, tidal)
 
 

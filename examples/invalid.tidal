@@ -1,8 +1,8 @@
 {
     "Breath count": "5",
     "Profile delay (s)": "10",
-    "Inhale delay (s)": "0.1",
-    "Exhale delay (s)": "0.1",
+    "Delay inhale (s)": "0.1",
+    "Delay exhale (s)": "0.1",
     "order": 1,
     "lobes": [
         {

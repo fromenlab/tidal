@@ -3,6 +3,8 @@ from time import sleep
 from datetime import datetime
 import os
 
+# Lobes always specified in the order RU, RM, RL, LU, LL
+
 class Arduino:
     def __init__(self, port):
         self.port = port
