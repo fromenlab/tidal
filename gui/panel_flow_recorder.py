@@ -4,7 +4,7 @@ from multiprocessing import Process, Event
 from datetime import datetime
 
 from api.tsi import TSI
-import utils.unique_id as utils
+import utils.logger
 from api.TIDAL import TIDAL
 
 class RecorderPanel:
@@ -100,14 +100,14 @@ class RecorderPanel:
         button_log.grid(column=2, row = 0, padx=10, pady=10, sticky=tk.EW)
 
     def update_log(self):
-        utils.write_log(dir=self.run_folder, name = "flow-log.txt", lines = self.get_log_lines(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")), mode='a')
+        utils.logger.write_log(dir=self.run_folder, name = "flow-log.txt", lines = self.get_log_lines(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")), mode='a')
 
 log_process = None
 
 def run(tidal: TIDAL, panel, event):
     print("Run clicked")
     global log_process
-    utils.write_log(dir=tidal.get_run_dir(), name="flow-log.txt", lines=panel.get_log_lines(date=''))
+    utils.logger.write_log(dir=tidal.get_run_dir(), name="flow-log.txt", lines=panel.get_log_lines(date=''))
 
     if tidal.tsi_connected:
         tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
@@ -117,6 +117,7 @@ def run(tidal: TIDAL, panel, event):
     tidal.get_tsi().set_output_dir(tidal.get_data_dir()) # breaks standalone behavior
     log_process = Process(target=log_data, args=(tidal.get_tsi(), event,))
     log_process.start()
+    # log_data(tidal.get_tsi(), event)
     return
 
 def run_plot_live(tidal: TIDAL, panel, event):

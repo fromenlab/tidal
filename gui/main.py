@@ -9,8 +9,10 @@ from gui.panel_bezier import BezierPanel
 from gui.panel_console import LogPanel
 from gui.panel_setup import SetupPanel
 from api.TIDAL import TIDAL
+import multiprocessing
 
 if __name__ == "__main__":
+    multiprocessing.set_start_method('spawn')
     tidal = TIDAL(tsi_port='/dev/ttyACM0', motor_port='/dev/ttyACM1')
 
     root = tk.Tk()

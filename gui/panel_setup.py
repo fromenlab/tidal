@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from multiprocessing import Process, Event
 from datetime import datetime
 
 from api.tsi import TSI
+from utils.logger import write_log
 import utils.unique_id as utils
 from api.TIDAL import TIDAL
 from utils.version import get_software_version
@@ -180,8 +180,8 @@ class SetupPanel:
                 self.tidal.set_data_dir(data_folder)
                 
                 # Create the log files
-                utils.write_log(dir=run_folder, lines = get_software_version())
-                utils.write_log(dir=run_folder, lines=[f"Log created (UTC): {date}", notes])
+                write_log(dir=run_folder, lines = get_software_version())
+                write_log(dir=run_folder, lines=[f"Log created (UTC): {date}", notes])
             except:
                 print("There was a problem creating the structure")
             else:
