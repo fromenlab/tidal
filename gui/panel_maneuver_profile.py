@@ -12,7 +12,7 @@ class ProfileManeuverPanel:
         self.ard = tidal_instance.get_motors()
         self.lobes = tidal_instance.lobes
         self.global_entries = tidal_instance.global_entries
-        self.order = tidal_instance.order
+        self.order = tidal_instance.order_entry
 
         fr_pad = VerticalScrolledFrame(self.parent,
                                        padx = 5, pady = 5)#,

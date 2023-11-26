@@ -100,7 +100,7 @@ class RecorderPanel:
         button_log.grid(column=2, row = 0, padx=10, pady=10, sticky=tk.EW)
 
     def update_log(self):
-        utils.logger.write_log(dir=self.run_folder, name = "flow-log.txt", lines = self.get_log_lines(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")), mode='a')
+        utils.logger.write_log(dir=self.run_folder, name = "flow-log.txt", lines = self.get_log_lines(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")))
 
 log_process = None
 
