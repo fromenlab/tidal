@@ -7,7 +7,8 @@ Control interfaces for dynamic lung system
 
 ### Linux
 
-This is default choice for running the system in a lab setting. We use a recent version of Ubuntu, but other Linux flavors should also be suitable.
+This is default choice for running the system in a lab setting. We use a recent version of Ubuntu, 
+but other Linux flavors should also be suitable.
 
 Optional: add timestamps to command history.  
 `echo 'export HISTTIMEFORMAT="%Y%m%d "' >> ~/.bashrc`
@@ -15,9 +16,14 @@ Optional: add timestamps to command history.
 Add USB access permissions with the following command. Log out and log back in to take effect.  
 `sudo usermod -a -G dialout $USER`
 
+For using the Arduino CLI bundled with the VS Code extension:  
+`echo 'export PATH=$PATH:~/.vscode/extensions/vsciot-vscode.vscode-arduino-0.6.0-linux-x64/assets/platform/linux-x64/arduino-cli' >> ~/.bashrc`
+
 ### Windows
 
-Windows can be used for development purposes out of lab. However, there are important differences in how threads/processes are handled between Windows and Linux, so the final tests should be confirmed with whatever system is being used in lab. Separate versions are maintained for certain features, but Windows will not be the primary OS for the current state of development.
+As of the current working version (F2023), Windows conventions for flow logging have been implemented in the main routine.
+ However, there are important differences in how threads/processes are handled between Windows and Linux, so the final 
+ tests should be confirmed with whatever system is being used in lab.
 
 ## Arduino
 

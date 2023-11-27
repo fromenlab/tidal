@@ -3,6 +3,8 @@ dependencies:
   - python=3.9
   - pyserial
   - numpy
-  - pandas
   - matplotlib
+  - pandas
   - jupyter
+  - plotly # only for interactive plot
+  - dash # only for more interactive plot

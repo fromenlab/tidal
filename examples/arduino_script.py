@@ -17,6 +17,6 @@ ard.run_maneuver()
 
 # Example: Run a breathing profile
 
-pp.pprint(ard.run_profile())
+pp.pprint(ard.run_profile_constant())
 
 ard.close()

@@ -26,19 +26,3 @@ def make_run_folder(output_dir, id):
 
     return run_folder, data_folder
 
-def write_log(dir, name, lines, mode='w'):
-    if (not os.path.exists(dir)):
-        os.mkdir(dir)
-    if not name:
-        name = "log.txt"
-
-    log_path = os.path.join(dir, name)
-
-    if (not os.path.exists(log_path)):
-         mode = 'w'
-
-    with open(log_path, mode, encoding='utf-8') as f:
-        for line in lines:
-            f.writelines([line, "\n"])
-
-        f.writelines(["---", "\n"])
