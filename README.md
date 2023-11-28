@@ -41,7 +41,7 @@ This project no longer requires downloading the Arduino IDE or CLI directly. Use
     - C/C++ Extension Pack
     - Serial Monitor
 
-1. Configure the Python path
+1. Configure the Python path in user settings
 
     ```json
     "terminal.integrated.env.linux": {
@@ -68,7 +68,9 @@ https://docs.conda.io/en/latest/miniconda.html
     - python=3.9
     - pyserial
     - numpy
-    - pandas
     - matplotlib
+    - pandas
     - jupyter
+    - plotly # only for interactive plot
+    - dash # only for more-interactive plot
     ```
