@@ -420,7 +420,7 @@ void parseQuery() {
     {
       switch (tempChars[1]) {
         case '\0':
-          Serial.println("OK");
+          Serial.println("OK-Motors");
           break;
         case 'S':
         printParams();

@@ -229,7 +229,6 @@ class TIDAL():
             print(f"TIDAL could not disconnect from motors")
         else:
             self.motors_connected = False
-            print(f"Disconnected from {self.arduino.port}")
 
     # 
     # Logging
@@ -291,7 +290,7 @@ class TIDAL():
         return
 
     def substitute_params(self):
-        with open(r'./protocol/template/motor_complete.ino', "r") as t:
+        with open(r'./protocol/template/motor_complete_profile.ino', "r") as t:
             template = Template(t.read())
             
         # Hard-coding values for now
