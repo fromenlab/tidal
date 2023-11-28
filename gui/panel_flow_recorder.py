@@ -12,9 +12,6 @@ class RecorderPanel:
         self.parent = parent
         self.tidal = tidal_instance
         self.tsi = tidal_instance.get_tsi()
-        self.log_process = None
-        self.output_path = None     # Folder for all logs
-        self.run_folder = None      # Folder for given log
         self.conditions = {
             "Device ID": None, 
             "Alignment": None, 
@@ -83,39 +80,45 @@ class RecorderPanel:
         frame_run.grid(sticky=tk.EW)
         frame_run.columnconfigure(0, weight=1)
 
-        event = Event()
+        log_event = Event()
+        live_event = Event()
 
         # Run options
-        button_run = tk.Button(frame_run, text = 'Start Recording', command = lambda:run(self.tidal, self, event), padx=10, pady=10)
+        button_run = tk.Button(frame_run, text = 'Start Recording', command = lambda:run(self.tidal, self, log_event, live_event), padx=10, pady=10)
         button_run.grid(column=0, row = 0, padx=10, pady=10, sticky=tk.EW)
 
-        button_live = tk.Button(frame_run, text = 'Plot Live', command = lambda:run_plot_live(self.tidal, self, event), padx=10, pady=10)
+        button_live = tk.Button(frame_run, text = 'Plot Live', command = lambda:run_plot_live(self.tidal, self, live_event), padx=10, pady=10)
         button_live.grid(column=0, row=1, padx=10, pady=5, sticky=tk.EW)
 
         # Stop options
-        button_terminate = tk.Button(frame_run, text = 'Terminate', command = lambda:stop(event), padx=10, pady=10)
+        button_terminate = tk.Button(frame_run, text = 'Terminate', command = lambda:stop(log_event, live_event), padx=10, pady=10)
         button_terminate.grid(column=1, row = 0, padx=10, pady=5, sticky=tk.EW)
 
         button_log = tk.Button(frame_run, text = 'Update Log', command = self.update_log, padx=10, pady=10)
         button_log.grid(column=2, row = 0, padx=10, pady=10, sticky=tk.EW)
 
     def update_log(self):
-        utils.logger.write_log(dir=self.run_folder, name = "flow-log.txt", lines = self.get_log_lines(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")))
+        utils.logger.write_log(dir=self.tidal.get_run_dir(), name = "flow-log.txt", lines = self.get_log_lines(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")))
 
 log_process = None
 
-def run(tidal: TIDAL, panel, event):
-    print("Run clicked")
+def run(tidal: TIDAL, panel, log_event, live_event):
     global log_process
     utils.logger.write_log(dir=tidal.get_run_dir(), name="flow-log.txt", lines=panel.get_log_lines(date=''))
 
-    if tidal.tsi_connected:
-        tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
-    if log_process is not None:
+    if log_process is not None and log_process.is_alive():
+        print("Stopping existing log process. Any data in current queue will be lost.")
+        if live_event.is_set():
+            live_event.clear()
         log_process.terminate()
 
+    if tidal.tsi_connected:
+        print("Disconnecting flow meter for transfer to a new process.")
+        tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
+    
     tidal.get_tsi().set_output_dir(tidal.get_data_dir()) # breaks standalone behavior
-    log_process = Process(target=log_data, args=(tidal.get_tsi(), tidal.log_file, event,))
+    log_process = Process(target=log_data, args=(tidal.get_tsi(), tidal.log_file, log_event,))
+    print("Starting data collection process.")
     log_process.start()
     # log_data(tidal.get_tsi(), event)
     return
@@ -139,19 +142,20 @@ def log_data(tsi_instance: TSI, log_file, event):
     while not event.is_set():
         tsi_instance.query_flow_set()
 
-    print("Logging complete")
     tsi_instance.close()
     event.clear()
 
-def run_plot_live(tidal: TIDAL, panel, event):
+def run_plot_live(tidal: TIDAL, panel, live_event):
     global log_process
+    if log_process is not None and log_process.is_alive():
+        print("There is currently a log process running. A new live plot will not be generated.")
+        return
     if tidal.tsi_connected:
         tidal.disconnect_tsi() # Disconnect for multiprocessing to pickle (if sending tidal)
-    if log_process is not None:
-        log_process.terminate()
-    # log_process = Process(target=plot_live, args=(tidal.get_tsi(), event,))
-    # log_process.start()
-    plot_live(tidal.get_tsi(), event)
+
+    print("Preparing live plot... (Data not recorded.)")
+    log_process = Process(target=plot_live, args=(tidal.get_tsi(), live_event))
+    log_process.start()
     return
 
 from collections import deque
@@ -172,14 +176,14 @@ def update_plot(frame, tsi_instance: TSI, plot_instance: TSIPlot):
         plot_instance.line.set_data(plot_instance.x, plot_instance.y)
     
 
-def plot_live(tsi_instance: TSI, event):
+def plot_live(tsi_instance: TSI, live_event):
     # References
     # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html
     # https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html
     # https://matplotlib.org/stable/api/animation_api.html
     # https://matplotlib.org/stable/gallery/animation/simple_anim.html
 
-    print("Displaying live plot. Data not recorded.")
+    live_event.set()
 
     # Set up plot
     from matplotlib.animation import FuncAnimation
@@ -191,6 +195,7 @@ def plot_live(tsi_instance: TSI, event):
     lines = ax.plot([], [])[0]
 
     tsi_instance.connect()
+    tsi_instance.live = True
     response = tsi_instance.query_connection(message="SSR0010\r")
     print(f'Set sample rate: {response}')
 
@@ -205,15 +210,28 @@ def plot_live(tsi_instance: TSI, event):
 
     anim = FuncAnimation(fig, update_plot, fargs=(tsi_instance, plot_instance), interval=50)
     # Note that update interval will not be exactly 50 ms, and plot data will
-    # _not_ be temporally accurate
+    # _not_ not show accurate time
     plt.show()
 
     # After closing the plot window
-    event.clear()
+    tsi_instance.live = False
     tsi_instance.close()
     
-def stop(event):
+def stop(log_event, live_event):
     # Stop logging
-    print("Stopping data collection...")
-    event.set()
+    global log_process
+
+    if live_event.is_set() and log_process is not None and log_process.is_alive():
+        print("Terminating live plot.")
+        live_event.clear()
+        log_process.terminate()
+    elif log_process is not None and log_process.is_alive():
+        print("Stopping data collection. Please wait for the current data series to complete...")
+        log_event.set()
+        while log_event.is_set():
+            log_event.wait(0.5)
+        print("Data collection complete.")
+    else:
+        print("There was nothing to terminate.")
+
     return
