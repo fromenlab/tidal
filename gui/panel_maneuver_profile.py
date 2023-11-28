@@ -19,6 +19,7 @@ class ProfileManeuverPanel:
                         #   highlightbackground="blue", highlightthickness=2)
         fr_pad.columnconfigure(0, weight=1)
 
+        tk.Label(fr_pad.interior, text="Variable Profile Settings").pack()
         self.make_lobe_param_views(fr_pad.interior)
         self.make_profile_buttons(fr_pad.interior)
 
@@ -102,6 +103,10 @@ class ProfileManeuverPanel:
         print("Done")
 
     def update_global_settings(self):
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+        
         if self.global_entries['Breath count'].get():
             Arduino.set_breath_count(self.ard, self.global_entries['Breath count'].get())
         if self.global_entries['Profile delay (s)'].get():
@@ -114,6 +119,10 @@ class ProfileManeuverPanel:
         Arduino.set_maneuver_order(self.ard, maneuver= 'exhale' if self.order.current() == 0 else 'inhale')
         
     def update_lobe_settings(self):
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+
         for index, lobe in enumerate(self.lobes):
             selected_lobe = [0,0,0,0,0]
             selected_lobe[index] = 1
@@ -123,8 +132,12 @@ class ProfileManeuverPanel:
                 self.ard.set_lobe_default('steps', lobe.step_count_variable, selected_lobe)
 
     def run(self):
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+
         print("Running variable profile...")
-        print(self.ard.check_parameters())
+        self.ard.print_parameters()
         self.ard.run_profile_variable()
 
 
