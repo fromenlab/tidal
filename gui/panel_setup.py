@@ -182,7 +182,7 @@ class SetupPanel:
                 
                 # Create the log files
                 write_log(dir=run_folder, lines = get_software_version())
-                write_log(dir=run_folder, lines=[f"Log created (UTC): {date}", notes])
+                write_log(dir=run_folder, lines=[f"\nLog created (UTC): {date}", notes])
             except:
                 print("There was a problem creating the structure")
             else:
