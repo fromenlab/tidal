@@ -13,7 +13,7 @@ import multiprocessing
 
 if __name__ == "__main__":
     multiprocessing.set_start_method('spawn')
-    tidal = TIDAL(tsi_port='/dev/ttyACM0', motor_port='/dev/ttyACM1')
+    tidal = TIDAL(tsi_port='/dev/ttyUSB0', motor_port='/dev/ttyACM0')
 
     root = tk.Tk()
     root.columnconfigure(0,weight=1)
