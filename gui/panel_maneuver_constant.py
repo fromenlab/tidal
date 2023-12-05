@@ -115,7 +115,7 @@ class ManeuverPanel:
         button.grid(sticky=tk.EW, padx=5, pady=5, column=0)
 
     def make_lobe_entries(self, parent):
-        frame = ttk.LabelFrame(parent, text="Lobe settings")
+        frame = ttk.LabelFrame(parent, text="Constant profile settings")
         frame.grid(sticky=tk.EW, pady=10)
         frame.columnconfigure(0, weight=1)
         rows = 0
@@ -173,6 +173,10 @@ class ManeuverPanel:
 
         step_count = self.entry_steps.get()
 
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+
         if step_count:
             try:
                 step_count = abs(int(step_count))
@@ -185,6 +189,10 @@ class ManeuverPanel:
                 print("Invalid input")
 
     def update_global_settings(self):
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+
         if self.global_entries['Breath count'].get():
             Arduino.set_breath_count(self.ard, self.global_entries['Breath count'].get())
         if self.global_entries['Profile delay (s)'].get():
@@ -198,6 +206,10 @@ class ManeuverPanel:
         
 
     def update_lobe_settings(self):
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+
         for index, lobe in enumerate(self.lobes):
             selected_lobe = [0,0,0,0,0]
             selected_lobe[index] = 1
@@ -212,15 +224,21 @@ class ManeuverPanel:
         Arduino.update_lobe_delays(self.ard)
 
     def check_settings(self):
-        if not self.ard:
-            self.ard = self.tidal_instance.get_motors()
-        print(self.ard.check_parameters())
-        print(self.ard.check_lobe_delays())
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+
+        self.ard.print_parameters()
+        self.ard.print_lobe_delays()
 
     def run(self):
+        if not self.tidal_instance.motors_connected:
+            print("Please connect the motor controller. Cancelling command.")
+            return
+
         print("Running constant profile...")
-        print(Arduino.check_parameters(self.ard))
-        Arduino.run_profile_constant(self.ard)
+        self.ard.print_parameters()
+        self.ard.run_profile_constant()
 
 if __name__ == "__main__":
     # arduino = Arduino('/dev/ttyACM0')

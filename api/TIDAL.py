@@ -127,7 +127,7 @@ class TIDAL():
         # self.disconnect_motors()
         # self.disconnect_tsi()
 
-    def save(self):
+    def save(self, filename = None):
         from tkinter import filedialog
         # Update parameters
         self.breath_count =  self.global_entries['Breath count'].get()
@@ -139,8 +139,12 @@ class TIDAL():
 
         # Write file
         try:
-            with filedialog.asksaveasfile(defaultextension=".tidal", filetypes=[('TIDAL','*.tidal'), ('All files', '*.*')]) as f:
-                json.dump(self, f, indent = 4, cls = TIDALEncoder)
+            if filename is None:
+                with filedialog.asksaveasfile(defaultextension=".tidal", filetypes=[('TIDAL','*.tidal'), ('All files', '*.*')]) as f:
+                    json.dump(self, f, indent = 4, cls = TIDALEncoder)
+            else:
+                with open(os.path.join(self.run_dir, filename), 'w') as f:
+                    json.dump(self, f, indent = 4, cls = TIDALEncoder)
         except Exception as e:
             print(f"There was an error in saving the configuration: {e}")
         else: 
@@ -229,7 +233,6 @@ class TIDAL():
             print(f"TIDAL could not disconnect from motors")
         else:
             self.motors_connected = False
-            print(f"Disconnected from {self.arduino.port}")
 
     # 
     # Logging
@@ -291,7 +294,7 @@ class TIDAL():
         return
 
     def substitute_params(self):
-        with open(r'./protocol/template/motor_complete.ino', "r") as t:
+        with open(r'./protocol/template/motor_complete_profile.ino', "r") as t:
             template = Template(t.read())
             
         # Hard-coding values for now

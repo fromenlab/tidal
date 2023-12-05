@@ -13,7 +13,8 @@ def get_software_version():
         for index, line in enumerate(lines):
             lines[index] = line.decode('ascii').rstrip("\n")
     
-        lines.insert(0, "Software version:\n")
+        lines.insert(0, "\nSoftware version:\n")
+        lines.append("\n")
         
     return lines
 

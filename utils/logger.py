@@ -46,9 +46,10 @@ def write_log(dir, name = "log.txt", lines = None):
          mode = 'a'
 
     with open(log_path, mode, encoding='utf-8') as f:
-        f.writelines(["---", "\n", datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), "\n"])
+        # NOT UTC time
+        f.writelines([datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), " --- "])
 
         for line in lines:
             f.writelines([line, "\n"])
 
-        f.writelines(["\n", "\n"])
+        # f.writelines(["\n", "\n"])

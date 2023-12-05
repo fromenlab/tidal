@@ -20,10 +20,15 @@ class Arduino:
         except serial.SerialException as e:
             print(f"There was an error connecting: {e}")
         else:
-            print(f"Connected to Arduino on port {self.port}")
+            response = self.check_connection()
+            if response == ["OK-Motors"]:
+                print(f"Connected to Arduino on port {self.port}")
+            else:
+                print(f"Connected on port {self.port}, but there was a problem sending a query. Further commands may not have the expected results.")
 
     def close(self):
         try:
+            self.dev.reset_input_buffer()
             self.dev.close()
         except:
             print(f"There was an error disconnecting on port {self.port}")
@@ -50,8 +55,16 @@ class Arduino:
     def check_parameters(self):
         return self.query('?S')
     
+    def print_parameters(self):
+        for line in self.check_parameters():
+            print(line)
+    
     def check_lobe_delays(self):
         return self.query('?A')
+    
+    def print_lobe_delays(self):
+        for line in self.check_lobe_delays():
+            print(line)
 
     # Setters
 

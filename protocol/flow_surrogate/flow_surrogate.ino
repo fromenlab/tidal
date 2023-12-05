@@ -98,7 +98,7 @@ void printInvalid() {
 void parseQuery() {
     if (strcmp(tempChars, "?") == 0)
         {
-            Serial.print(F("OK-TSI\r"));
+            Serial.print(F("OK-Flow\r"));
         }
          else
         {

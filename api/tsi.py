@@ -9,6 +9,7 @@ class TSI:
     def __init__(self, port):
         self.port = port
         self.set_output_dir(os.path.join(os.path.dirname(__file__), r"output"))
+        self.live = False
         
     ###
     # Communications
@@ -35,10 +36,17 @@ class TSI:
         except serial.SerialException as e:
             print(f"There was an error connecting: {e}")
         else:
-            print(f"Connected to flow meter on port {self.port}")
+            response = self.query_connection()
+            if response == ["OK"]:
+                print(f"Connected to flow meter on port {self.port}")
+            elif response == ["OK-Flow"]:
+                print(f"Connected to flow meter _surrogate_ on port {self.port}")
+            else:
+                print(f"Connected on port {self.port}, but there was a problem sending a query. Further commands may not have the expected results.")
 
     def close(self):
         try:
+            self.dev.reset_input_buffer()
             self.dev.close()
         except:
             print(f"There was an error disconnecting on port {self.port}")

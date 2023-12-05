@@ -249,6 +249,8 @@ class BezierPanel:
 
         # ax.set_title('Click and drag a point to move it')
         ax.set_title(self.plot_title)
+        ax.set_xlabel('Maneuver progress')
+        ax.set_ylabel('Relative speed')
         ax.set_xlim((-0.1, 1.1))
         ax.set_ylim((-0.1, 1.1))
 

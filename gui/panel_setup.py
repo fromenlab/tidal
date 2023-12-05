@@ -182,7 +182,7 @@ class SetupPanel:
                 
                 # Create the log files
                 write_log(dir=run_folder, lines = get_software_version())
-                write_log(dir=run_folder, lines=[f"Log created (UTC): {date}", notes])
+                write_log(dir=run_folder, lines=[f"\nLog created (UTC): {date}", notes])
             except:
                 print("There was a problem creating the structure")
             else:
@@ -191,8 +191,11 @@ class SetupPanel:
             
         elif button['text'] == "Clear":
             # Original intent was to make this a 'conclude' functionality -- future feature
+            # TODO: Stop reading and close flow meter connection
             try:
-                # TODO: Stop reading and close flow meter connection
+                # Save configuration in run folder
+                self.tidal.save(filename = f"config-{self.tidal.get_run_id()}.tidal")
+
                 # Reset log settings
                 self.tidal.set_run_dir(os.path.join(self.tidal.log_dir, "runs"))
             except:
