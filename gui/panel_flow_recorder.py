@@ -215,6 +215,7 @@ def plot_live(tsi_instance: TSI, live_event):
 
     # After closing the plot window
     tsi_instance.live = False
+    live_event.clear()
     tsi_instance.close()
     
 def stop(log_event, live_event):
