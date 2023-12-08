@@ -19,7 +19,7 @@ other-notes:
 header-includes:
   - \usepackage{draftwatermark}
 changes:
-  - 
+  - R2 - Updated from legacy version. Content, formatting, methods
 ---
 \newpage
 # Usage
