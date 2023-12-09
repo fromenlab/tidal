@@ -128,7 +128,7 @@ class ProfileManeuverPanel:
             selected_lobe[index] = 1
             selected_lobe = ''.join([str(_) for _ in selected_lobe])
 
-            if lobe.gui_constant_step_entry.get():
+            if lobe.gui_variable_step_entry.get():
                 self.ard.set_lobe_default('steps', lobe.step_count_variable, selected_lobe)
 
     def run(self):
