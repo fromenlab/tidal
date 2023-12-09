@@ -19,8 +19,8 @@ if __name__ == "__main__":
     root.columnconfigure(0,weight=1)
     root.rowconfigure(0, weight=1)
 
-    minh = root.winfo_vrootheight()/10
-    minw = root.winfo_vrootwidth()/10
+    minh = root.winfo_screenheight()/10
+    minw = root.winfo_screenwidth()/10
 
     # ttk.Panedwindow showed limited configuration for sash on Windows, Conda python
     # https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/panedwindow.html
