@@ -29,11 +29,11 @@ class SetupPanel:
         fr.grid(sticky=tk.NSEW)
         fr.columnconfigure(0,weight=1)
 
-        self.make_config_entry(fr)
         self.make_log_entry(fr)
+        self.make_run_entry(fr)
+        self.make_config_entry(fr)
         self.make_tsi_entry(fr)
         self.make_arduino_entry(fr)
-        self.make_run_entry(fr)
 
     def make_config_entry(self, parent):
         frame_config = ttk.Labelframe(parent, text = 'Configuration')
