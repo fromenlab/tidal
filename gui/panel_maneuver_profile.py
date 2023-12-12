@@ -19,7 +19,7 @@ class ProfileManeuverPanel:
                         #   highlightbackground="blue", highlightthickness=2)
         fr_pad.columnconfigure(0, weight=1)
 
-        tk.Label(fr_pad.interior, text="Variable Profile Settings").pack()
+        tk.Label(fr_pad.interior, text="Variable-delay Settings", font=("SansSerif", 18, "bold")).pack()
         self.make_lobe_param_views(fr_pad.interior)
         self.make_profile_buttons(fr_pad.interior)
 

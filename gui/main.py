@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
-from gui.panel_maneuver_constant import ManeuverPanel
+from gui.panel_maneuver_constant_solo import ManeuverPanel
+from gui.panel_global_settings import GlobalSettingsPanel
 import gui.panel_flow_recorder as recorder
 from gui.panel_plot import PlotPanel
 from gui.panel_maneuver_profile import ProfileManeuverPanel
@@ -67,8 +68,10 @@ if __name__ == "__main__":
     log_panel = LogPanel(frame_console_out, tidal)
     setup_panel = SetupPanel(frame_sidebar, tidal)
 
+    global_settings_panel = GlobalSettingsPanel(tab_maneuver, tidal)
     maneuver_panel = ManeuverPanel(tab_maneuver, tidal)
     profile_maneuver_panel = ProfileManeuverPanel(tab_maneuver, tidal)
+    global_settings_panel.frame.pack(side=tk.LEFT, anchor=tk.NW, expand=True, fill = tk.BOTH)
     maneuver_panel.frame.pack(side=tk.LEFT, anchor=tk.NW, expand=True, fill = tk.BOTH)
     profile_maneuver_panel.frame.pack(side=tk.LEFT, anchor=tk.NE, expand=True, fill = tk.BOTH)
 
