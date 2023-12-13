@@ -84,18 +84,19 @@ class RecorderPanel:
         live_event = Event()
 
         # Run options
-        button_run = tk.Button(frame_run, text = 'Start Recording', command = lambda:run(self.tidal, self, log_event, live_event), padx=10, pady=10)
-        button_run.grid(column=0, row = 0, padx=10, pady=10, sticky=tk.EW)
-
         button_live = tk.Button(frame_run, text = 'Plot Live', command = lambda:run_plot_live(self.tidal, self, live_event), padx=10, pady=10)
-        button_live.grid(column=0, row=1, padx=10, pady=5, sticky=tk.EW)
+        button_live.pack(padx=10, pady=10, fill=tk.X)
+
+        button_run = tk.Button(frame_run, text = 'Start Recording', command = lambda:run(self.tidal, self, log_event, live_event), padx=10, pady=10)
+        button_run.pack(padx=10, pady=10, side=tk.LEFT, fill=tk.X, expand=True)
 
         # Stop options
         button_terminate = tk.Button(frame_run, text = 'Terminate', command = lambda:stop(log_event, live_event), padx=10, pady=10)
-        button_terminate.grid(column=1, row = 0, padx=10, pady=5, sticky=tk.EW)
+        button_terminate.pack(padx=10, pady=10, side=tk.LEFT, fill=tk.X)
 
-        button_log = tk.Button(frame_run, text = 'Update Log', command = self.update_log, padx=10, pady=10)
-        button_log.grid(column=2, row = 0, padx=10, pady=10, sticky=tk.EW)
+        # Update
+        button_log = tk.Button(frame_run, text = 'Update Flow Log', command = self.update_log, padx=10, pady=10)
+        button_log.pack(padx=10, pady=10, side=tk.LEFT, fill=tk.X)
 
     def update_log(self):
         utils.logger.write_log(dir=self.tidal.get_run_dir(), name = "flow-log.txt", lines = self.get_log_lines(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")))

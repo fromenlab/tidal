@@ -7,6 +7,7 @@ import gui.panel_flow_recorder as recorder
 from gui.panel_plot import PlotPanel
 from gui.panel_maneuver_profile import ProfileManeuverPanel
 from gui.panel_bezier import BezierPanel
+from gui.panel_bezier import BezierGuide
 from gui.panel_console import LogPanel
 from gui.panel_setup import SetupPanel
 from api.TIDAL import TIDAL
@@ -79,16 +80,30 @@ if __name__ == "__main__":
     plot_panel = PlotPanel(tab_flow, tidal)
 
     for lobe in tidal.lobes:
+        # Set up tab
         fr = ttk.Frame(panel_notebook)
         fr.columnconfigure(0, weight=1)
         fr.columnconfigure(1, weight=1)
         panel_notebook.add(fr, text=lobe.name)
-        fr_inhale = ttk.Frame(fr)
+
+        # Lay out sections
+        fr_instructions = ttk.Frame(fr)
+        fr_instructions.pack(expand=True, fill=tk.X)
+        fr_control_curves = ttk.Frame(fr)
+        fr_control_curves.pack(expand=True, fill=tk.BOTH)
+
+        fr_inhale = ttk.Frame(fr_control_curves)
         fr_inhale.columnconfigure(0, weight=1)
-        fr_exhale = ttk.Frame(fr)
+        fr_exhale = ttk.Frame(fr_control_curves)
         fr_exhale.columnconfigure(0, weight=1)
+
+        # Add content
         lobe.gui_inhale_bezier = BezierPanel(fr_inhale, plot_title="Inhale")
         lobe.gui_exhale_bezier = BezierPanel(fr_exhale, plot_title="Exhale")
+
+        # Layout
+        BezierGuide(fr_instructions).pack(anchor=tk.W)
+
         fr_inhale.grid(column=0, sticky=tk.EW, padx=10)
         fr_exhale.grid(column=1, row=0, sticky=tk.EW, padx=10)
         fr.rowconfigure(0, weight=1)

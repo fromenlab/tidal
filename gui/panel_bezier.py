@@ -281,24 +281,45 @@ class BezierPanel:
         points = {'x': self.interactor.control_x, 'y': self.interactor.control_y}
         with filedialog.asksaveasfile(defaultextension=".cp", filetypes=[('Control Points','*.cp'), ('All files', '*.*')]) as f:
             json.dump(points, f, indent=4)
-            print(f.name)
+            print(f"Control points saved at: {f.name}")
 
     def load_points(self):
         with filedialog.askopenfile(defaultextension=".cp", filetypes=[('Control Points','*.cp'), ('All files', '*.*')]) as f:
             points = json.load(f)
-            print(points)
             self.interactor.control_x = points['x']
             self.interactor.control_y = points['y']
             self.interactor.update_bezier()
-            print(f.name)
+            print(f"Control points loaded from: {f.name}")
+
+class BezierGuide():
+    def __init__(self, parent) -> None:
+        self.parent = parent
+        self.instructions = tk.Label(parent, font=("SansSerif", 12), justify = tk.LEFT)
+        contents = tk.StringVar()
+        self.instructions['textvariable'] = contents
+        
+        lines = [
+            '- Click within a plot to add a control point.',
+            '- Click and drag to move control points.',
+            '- To use hotkeys, click a plot title. Then move the mouse to the plot area, and press the key:',
+            '      (t)   Toggle point visibility',
+            '      (i)   Insert a control point at the mouse position',
+            '      (d) Delete the control point at the mouse position'
+        ]
+
+        contents.set('\n'.join(lines))
+
+    def pack(self, *args, **kwargs):
+        self.instructions.pack(*args, **kwargs)
         
 if __name__ == "__main__":
     root = tk.Tk()
 
     fr = tk.Frame(root)
     fr.pack(expand=True, fill='both')
-   
-    BezierPanel(fr)
+
+    BezierGuide(fr).pack(anchor=tk.W)   
+    BezierPanel(fr, plot_title="Control curve")
 
     root.mainloop()
 
