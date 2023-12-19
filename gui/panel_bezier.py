@@ -178,7 +178,7 @@ class Interactor:
 
     def flip_points(self):
         self.control_x = [((0.5-x)+0.5) for x in self.control_x]
-        self.update_bezier()
+        self.order_points()
             
     def build_bezier(self, n = 200):
         self.bezier = Bezier(self.control_x, self.control_y)

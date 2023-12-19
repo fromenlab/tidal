@@ -319,6 +319,9 @@ class TIDAL():
         # Note: for success, the arduino-cli executable 
         # needs to be in the PATH environment variable
 
+        # However, the appropriate version needs to be called for the given OS
+        arduino_cli = 'arduino-cli' if os.name == "nt" else 'arduino-cli.app'
+
         # Disconnect motors
         if self.motors_connected:
             self.disconnect_motors()
@@ -330,13 +333,13 @@ class TIDAL():
         # Compile
         # arduino-cli compile --fqbn arduino:avr:mega protocol/motor_complete
 
-        cmd_verify = ['arduino-cli.app', 'compile', '--fqbn', board, sketch]
+        cmd_verify = [arduino_cli, 'compile', '--fqbn', board, sketch]
         # subprocess.run(cmd_verify)
 
         # Upload
         # arduino-cli upload -p COM3 --fqbn arduino:avr:mega protocol/motor_complete
 
-        cmd_upload = ['arduino-cli.app', 'upload', '-p', port, '--fqbn', board, sketch, '--verbose', '--verify']
+        cmd_upload = [arduino_cli, 'upload', '-p', port, '--fqbn', board, sketch, '--verbose', '--verify']
         # subprocess.run(cmd_upload)
 
         if (not os.path.exists(self.run_dir)):

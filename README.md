@@ -49,7 +49,7 @@ This project no longer requires downloading the Arduino IDE or CLI directly. Use
         }
     ```
 
-1. 
+1. Locate the path to the VS Code `arduino-cli` and add it to your system's `PATH` environment variable.
 
 ## Python
 

@@ -137,7 +137,7 @@ class SetupPanel:
         
         lines = [
             'Basic run protocol:',
-            '- Set a log folder',
+            # '- Set a log folder',
             '- Initialize a new run',
             '- Load a configuration',
             '- Push to controller',
