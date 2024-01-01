@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+from gui.VerticalScrolledFrame import VerticalScrolledFrame
 from gui.panel_maneuver_constant_solo import ManeuverPanel
 from gui.panel_global_settings import GlobalSettingsPanel
 import gui.panel_flow_recorder as recorder
@@ -21,8 +22,8 @@ if __name__ == "__main__":
     root.columnconfigure(0,weight=1)
     root.rowconfigure(0, weight=1)
 
-    minh = root.winfo_screenheight()/10
-    minw = root.winfo_screenwidth()/10
+    minh = root.winfo_screenheight()*0.10
+    minw = root.winfo_screenwidth()*0.15
 
     # ttk.Panedwindow showed limited configuration for sash on Windows, Conda python
     # https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/panedwindow.html
@@ -62,8 +63,9 @@ if __name__ == "__main__":
     tab_maneuver.columnconfigure(0, weight=1)
     tab_maneuver.columnconfigure(1, weight=1)
 
-    tab_flow = ttk.Frame(panel_notebook)
+    tab_flow = VerticalScrolledFrame(panel_notebook)
     panel_notebook.add(tab_flow, text="Flow Meter")
+    tab_flow = tab_flow.interior
     
     # Add widgets to UI framework
     log_panel = LogPanel(frame_console_out, tidal)
@@ -81,15 +83,17 @@ if __name__ == "__main__":
 
     for lobe in tidal.lobes:
         # Set up tab
-        fr = ttk.Frame(panel_notebook)
-        fr.columnconfigure(0, weight=1)
-        fr.columnconfigure(1, weight=1)
+        # fr = ttk.Frame(panel_notebook)
+        fr = VerticalScrolledFrame(panel_notebook)
         panel_notebook.add(fr, text=lobe.name)
+        fr = fr.interior
 
         # Lay out sections
         fr_instructions = ttk.Frame(fr)
         fr_instructions.pack(expand=True, fill=tk.X)
         fr_control_curves = ttk.Frame(fr)
+        fr_control_curves.columnconfigure(0, weight=1)
+        fr_control_curves.columnconfigure(1, weight=1)
         fr_control_curves.pack(expand=True, fill=tk.BOTH)
 
         fr_inhale = ttk.Frame(fr_control_curves)
