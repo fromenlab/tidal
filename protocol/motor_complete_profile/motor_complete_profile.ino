@@ -737,7 +737,7 @@ void parseSAC() {
 
 void parseC() {
     // Write
-    // Input: C{Maneuver}/{Steps}/{Value}/{Motors}
+    // Input: C/{Steps}/{Value}/{Motors}
     // Index: 0 - 700
     // Value: 0 - 65535
     // Motors: xxxxx
@@ -819,7 +819,7 @@ prepare_delays_constant();
         {
             prepareM(i, START_MANEUVER * steppers[i].default_steps);
         }
-        delay(DELAY_INHALE * 1000);
+        (START_MANEUVER == inhale) ? delay(DELAY_INHALE * 1000) : delay(DELAY_EXHALE * 1000);
         runAndWait();
 
         // Second breath maneuver
@@ -827,7 +827,7 @@ prepare_delays_constant();
         {
             prepareM(i, START_MANEUVER * -1 * steppers[i].default_steps);
         }
-        delay(DELAY_EXHALE * 1000);
+        (START_MANEUVER == inhale) ? delay(DELAY_EXHALE * 1000) : delay(DELAY_INHALE * 1000);
         runAndWait();
     }
 }
@@ -868,8 +868,8 @@ void run_profile_variable() {
         {
             prepareM(i, START_MANEUVER * steppers[i].default_steps);
         }
-        // First movement (inhale) delay period
-        delay(DELAY_INHALE * 1000);
+        // First movement delay period
+        (START_MANEUVER == inhale) ? delay(DELAY_INHALE * 1000) : delay(DELAY_EXHALE * 1000);
         runAndWait();
 
         // Prepare second movement delays
@@ -879,7 +879,7 @@ void run_profile_variable() {
             prepareM(i, START_MANEUVER * -1 * steppers[i].default_steps);
         }
         // Second movement delay period
-        delay(DELAY_EXHALE * 1000);
+        (START_MANEUVER == inhale) ? delay(DELAY_EXHALE * 1000) : delay(DELAY_INHALE * 1000);
         runAndWait();
     }
 }

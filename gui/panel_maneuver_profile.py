@@ -19,7 +19,7 @@ class ProfileManeuverPanel:
                         #   highlightbackground="blue", highlightthickness=2)
         fr_pad.columnconfigure(0, weight=1)
 
-        tk.Label(fr_pad.interior, text="Variable Profile Settings").pack()
+        tk.Label(fr_pad.interior, text="Variable-delay Settings", font=("SansSerif", 18, "bold")).pack()
         self.make_lobe_param_views(fr_pad.interior)
         self.make_profile_buttons(fr_pad.interior)
 
@@ -128,7 +128,7 @@ class ProfileManeuverPanel:
             selected_lobe[index] = 1
             selected_lobe = ''.join([str(_) for _ in selected_lobe])
 
-            if lobe.gui_constant_step_entry.get():
+            if lobe.gui_variable_step_entry.get():
                 self.ard.set_lobe_default('steps', lobe.step_count_variable, selected_lobe)
 
     def run(self):

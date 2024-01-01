@@ -19,6 +19,15 @@ Add USB access permissions with the following command. Log out and log back in t
 For using the Arduino CLI bundled with the VS Code extension:  
 `echo 'export PATH=$PATH:~/.vscode/extensions/vsciot-vscode.vscode-arduino-0.6.0-linux-x64/assets/platform/linux-x64/arduino-cli' >> ~/.bashrc`
 
+#### Fonts
+Note that tkinter fonts on Linux with Anaconda-based Python distributions look...bad. One alternative is to use the system Python version and install the dependencies via pip (`requirements.txt` included here). There have been some elements in the works to resolve this, but I have not been able to implement them yet.
+
+References:
+- [https://stackoverflow.com/questions/49187741/tkinter-looks-extremely-ugly-in-linux](https://stackoverflow.com/questions/49187741/tkinter-looks-extremely-ugly-in-linux)
+- [https://github.com/ContinuumIO/anaconda-issues/issues/6833](https://github.com/ContinuumIO/anaconda-issues/issues/6833)
+- [https://github.com/conda-forge/tk-feedstock/pull/40](https://github.com/conda-forge/tk-feedstock/pull/40)
+- [https://github.com/conda-forge/tk-feedstock/pull/40#issuecomment-1803067221](https://github.com/conda-forge/tk-feedstock/pull/40#issuecomment-1803067221)
+
 ### Windows
 
 As of the current working version (F2023), Windows conventions for flow logging have been implemented in the main routine.
@@ -49,9 +58,11 @@ This project no longer requires downloading the Arduino IDE or CLI directly. Use
         }
     ```
 
-1. 
+1. Locate the path to the VS Code `arduino-cli` and add it to your system's `PATH` environment variable.
 
 ## Python
+
+This project has used Anaconda to easily manage Python environments in development.
 
 1. Install the latest Miniconda  
 https://docs.conda.io/en/latest/miniconda.html
@@ -74,3 +85,5 @@ https://docs.conda.io/en/latest/miniconda.html
     - plotly # only for interactive plot
     - dash # only for more-interactive plot
     ```
+
+If on Linux, see the note about fonts above.

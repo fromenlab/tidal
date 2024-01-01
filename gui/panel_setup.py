@@ -26,14 +26,15 @@ class SetupPanel:
             }
 
         fr = tk.Frame(self.parent)
-        fr.grid(sticky=tk.NSEW)
+        fr.pack(expand=True,fill=tk.BOTH)
         fr.columnconfigure(0,weight=1)
 
-        self.make_config_entry(fr)
         self.make_log_entry(fr)
+        self.make_run_entry(fr)
+        self.make_config_entry(fr)
         self.make_tsi_entry(fr)
         self.make_arduino_entry(fr)
-        self.make_run_entry(fr)
+        self.make_instructions_entry(fr)
 
     def make_config_entry(self, parent):
         frame_config = ttk.Labelframe(parent, text = 'Configuration')
@@ -42,12 +43,12 @@ class SetupPanel:
 
         button_load.pack(side = tk.LEFT, padx=5, expand = True, fill = tk.X, pady=5)
         button_save.pack(side = tk.LEFT, padx=5, expand = True, fill = tk.X, pady=5)
-        frame_config.grid(sticky=tk.EW)
+        frame_config.pack(fill=tk.X)
 
     def make_log_entry(self, parent):
         # Set frames for layout
         frame_paths = ttk.Labelframe(parent, text='Log Folder')
-        frame_paths.grid(sticky = tk.EW)
+        frame_paths.pack(fill=tk.X)
         frame_paths.columnconfigure(index=0, weight=1)
 
         entry_input = tk.Entry(frame_paths)
@@ -65,7 +66,7 @@ class SetupPanel:
     def make_tsi_entry(self, parent):
         # Set frames for layout
         frame_paths = ttk.Labelframe(parent, text='TSI Port')
-        frame_paths.grid(sticky = tk.EW)
+        frame_paths.pack(fill=tk.X)
         frame_paths.columnconfigure(index=0, weight=1)
 
         entry_input = tk.Entry(frame_paths)
@@ -84,7 +85,7 @@ class SetupPanel:
     def make_arduino_entry(self, parent):
         # Set frames for layout
         frame_paths = ttk.Labelframe(parent, text='Arduino Port')
-        frame_paths.grid(sticky = tk.EW)
+        frame_paths.pack(fill=tk.X)
         frame_paths.columnconfigure(index=0, weight=1)
 
         entry_input = tk.Entry(frame_paths)
@@ -102,24 +103,52 @@ class SetupPanel:
     
     def make_run_entry(self, parent):
         # Set frames for layout
-        frame_paths = ttk.Labelframe(parent, text='Run Folder')
-        frame_paths.grid(sticky = tk.EW)
+        frame_paths = ttk.Labelframe(parent, text='Run Info')
+        frame_paths.pack(fill=tk.X)
         frame_paths.columnconfigure(index=0, weight=1)
 
         label = tk.Label(frame_paths, text="Short description:")
-        label.grid(row = 0, column=0, padx=5, pady=5, sticky=tk.W)
+        label.pack(padx=5, pady=5, anchor=tk.W)
 
-        entry = tk.Text(frame_paths, height=2, width=10)
-        entry.grid(row=1, column=0, padx = 5, sticky=tk.EW)
+        entry = tk.Text(frame_paths, height=1, width=10)
+        entry.pack(padx = 5, fill=tk.X)
 
-        entry_input = tk.Entry(frame_paths)
+        id_input = tk.Entry(frame_paths, state='readonly', justify=tk.CENTER)
         button_input = tk.Button(frame_paths, text = 'Initialize')
-        button_input.configure(command = lambda:self.initialize_run(entry_input, button_input, entry))
+        button_input.configure(command = lambda:self.initialize_run(id_input, button_input, entry))
         
-        entry_input.grid(row=3, column=0, padx = 5, pady=5, sticky=tk.EW)
-        button_input.grid(row = 4, column = 0, padx=5, pady=5, sticky=tk.EW)
+        button_input.pack(padx=5, pady=5, fill=tk.X)
+        id_input.pack(padx = 5, pady=5, fill=tk.X)
 
-        return entry_input
+        # Notes
+        label_notes = tk.Label(frame_paths, text="Notes:")
+        label_notes.pack(padx=5, anchor=tk.W)
+        notes = tk.Text(frame_paths, height=3, width=10)
+        notes.pack(padx=5, pady=5, fill=tk.BOTH)
+
+        self.run_notes = notes
+
+        return id_input
+    
+    def make_instructions_entry(self, parent):
+        instructions = tk.Label(parent, justify = tk.LEFT)
+        contents = tk.StringVar()
+        instructions['textvariable'] = contents
+        
+        lines = [
+            'Basic run protocol:',
+            # '- Set a log folder',
+            '- Initialize a new run',
+            '- Load a configuration',
+            '- Push to controller',
+            '- Check parameters',
+            '- Run profile'
+        ]
+
+        contents.set('\n'.join(lines))
+
+        instructions.pack(side=tk.BOTTOM, anchor=tk.W, padx=5, pady=5)
+        # instructions.grid(sticky=tk.S)
 
     def select_folder(self, entry):
         folder_path = filedialog.askdirectory()
@@ -172,8 +201,10 @@ class SetupPanel:
                 notes = description_entry.get('1.0', tk.END)
                 id, date = utils.make_id(notes)
                 run_folder, data_folder = utils.make_run_folder(output_dir=self.tidal.get_log_dir(), id = id)
+                path_entry.configure(state='normal')
                 path_entry.delete(0, tk.END)
                 path_entry.insert(0, id)
+                path_entry.configure(state='readonly')
 
                 # Update values in TIDAL instance
                 self.tidal.set_run_id(id)
@@ -183,11 +214,12 @@ class SetupPanel:
                 # Create the log files
                 write_log(dir=run_folder, lines = get_software_version())
                 write_log(dir=run_folder, lines=[f"\nLog created (UTC): {date}", notes])
-            except:
+            except Exception as e:
                 print("There was a problem creating the structure")
+                print(e)
             else:
                 button['text'] = "Clear"
-                print("Run initialized")
+                print(f"Run initialized: {id}")
             
         elif button['text'] == "Clear":
             # Original intent was to make this a 'conclude' functionality -- future feature
@@ -195,15 +227,21 @@ class SetupPanel:
             try:
                 # Save configuration in run folder
                 self.tidal.save(filename = f"config-{self.tidal.get_run_id()}.tidal")
+                print("Run notes:")
+                print(self.run_notes.get('1.0', tk.END))
 
                 # Reset log settings
                 self.tidal.set_run_dir(os.path.join(self.tidal.log_dir, "runs"))
-            except:
+            except Exception as e:
                 print("There was a problem clearing the run")
+                print(e)
             else:
                 print("Run cleared")
+                path_entry.configure(state='normal')
                 path_entry.delete(0, tk.END)
+                path_entry.configure(state='readonly')
                 description_entry.delete('1.0', tk.END)
+                self.run_notes.delete('1.0', tk.END)
                 button['text'] = "Initialize"
                 
 
@@ -215,10 +253,13 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     root.columnconfigure(0,weight=1)
+    root.rowconfigure(0, weight=1)
 
     frame = tk.Frame(root, width=100, height=100)
     frame.columnconfigure(0,weight=1)
+    frame.rowconfigure(0, weight=1)
     SetupPanel(frame, tidal_instance=tidal)
-    frame.grid(padx=10, pady=10, sticky=tk.NSEW, column=0, row=0)
+    # frame.grid(padx=10, pady=10, sticky=tk.NSEW, column=0, row=0)
+    frame.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)
 
     root.mainloop()
