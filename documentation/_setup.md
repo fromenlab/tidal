@@ -48,7 +48,9 @@ This project no longer requires downloading the Arduino IDE or CLI directly. Use
 
 1. Locate the path to the VS Code `arduino-cli` and add it to your system's `PATH` environment variable.
     - Linux command:  
-    `echo 'export PATH=$PATH:~/.vscode/extensions/vsciot-vscode.vscode-arduino-0.6.0-linux-x64/assets/platform/linux-x64/arduino-cli' >> ~/.bashrc`
+        ```
+        echo 'export PATH=$PATH:~/.vscode/extensions/vsciot-vscode.vscode-arduino-0.6.0-linux-x64/assets/platform/linux-x64/arduino-cli' >> ~/.bashrc
+        ````
 
 ## Python
 
