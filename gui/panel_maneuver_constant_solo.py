@@ -96,13 +96,7 @@ class ManeuverPanel:
         
         Arduino.update_lobe_delays(self.ard)
 
-    def check_settings(self):
-        if not self.tidal_instance.motors_connected:
-            print("Please connect the motor controller. Cancelling command.")
-            return
-
-        self.ard.print_parameters()
-        self.ard.print_lobe_delays()
+        print("Done updating lobe settings.")
 
     def run(self):
         if not self.tidal_instance.motors_connected:

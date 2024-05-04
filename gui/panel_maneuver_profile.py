@@ -100,7 +100,7 @@ class ProfileManeuverPanel:
         self.update_global_settings()
         self.update_lobe_settings()
 
-        print("Done")
+        print("Done updating variable profile settings.")
 
     def update_global_settings(self):
         if not self.tidal_instance.motors_connected:
@@ -117,6 +117,8 @@ class ProfileManeuverPanel:
             Arduino.set_delay(self.ard, maneuver='exhale', delay=self.global_entries['Delay exhale (s)'].get())
         
         Arduino.set_maneuver_order(self.ard, maneuver= 'exhale' if self.order.current() == 0 else 'inhale')
+
+        print("Done updating global settings.")
         
     def update_lobe_settings(self):
         if not self.tidal_instance.motors_connected:
@@ -130,6 +132,8 @@ class ProfileManeuverPanel:
 
             if lobe.gui_variable_step_entry.get():
                 self.ard.set_lobe_default('steps', lobe.step_count_variable, selected_lobe)
+
+        print("Done updating lobe settings.")
 
     def run(self):
         if not self.tidal_instance.motors_connected:

@@ -63,6 +63,7 @@ class Arduino:
         return self.query('?A')
     
     def print_lobe_delays(self):
+        print("Checking and printing lobe delays. This may take a minute...")
         for line in self.check_lobe_delays():
             print(line)
 

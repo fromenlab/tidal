@@ -1,89 +1,45 @@
-# tidal
-Control interfaces for dynamic lung system
+# TIDAL
+This software provides interfaces control and minimal analysis of the TIDAL dynamic lung system. It is primarily a graphical means of configuring the system, setting parameters for breathing profiles, and analyzing breathing profile output.
 
-# System Configuration
+For users interested in scripting, there are also Python APIs and an Arduino motor control protocol available.
 
-## OS
+Ready to get started? [Read the docs here!](documentation)
 
-### Linux
+## Main components
 
-This is default choice for running the system in a lab setting. We use a recent version of Ubuntu, 
-but other Linux flavors should also be suitable.
+- Lung system and motors
+- Computer
+    - Tested on Linux and Windows
+- Python
+- Arduino MEGA or clone
+- TSI/Copley flow meter
+    - RS232 to USB
 
-Optional: add timestamps to command history.  
-`echo 'export HISTTIMEFORMAT="%Y%m%d "' >> ~/.bashrc`
+## Usage
 
-Add USB access permissions with the following command. Log out and log back in to take effect.  
-`sudo usermod -a -G dialout $USER`
+1. Get the source
+    - `git clone https://github.com/fromenlab/tidal.git`
+    - No git: Download the zip file and extract.
+    - Version names are a combination of semantic and calendar versioning.
+1. Install the dependencies in your Python environment.
+    - Conda: `conda create -f environment.yml`
+    - Pip: `pip install -r requirements.txt`
+1. Run `gui/main.py` from the main `/tidal/` directory.
 
-For using the Arduino CLI bundled with the VS Code extension:  
-`echo 'export PATH=$PATH:~/.vscode/extensions/vsciot-vscode.vscode-arduino-0.6.0-linux-x64/assets/platform/linux-x64/arduino-cli' >> ~/.bashrc`
+[For more details on configuring the computer, see the notes in the documentation.](documentation/_setup.md)
 
-#### Fonts
-Note that tkinter fonts on Linux with Anaconda-based Python distributions look...bad. One alternative is to use the system Python version and install the dependencies via pip (`requirements.txt` included here). There have been some elements in the works to resolve this, but I have not been able to implement them yet.
+## Citing this work
 
-References:
-- [https://stackoverflow.com/questions/49187741/tkinter-looks-extremely-ugly-in-linux](https://stackoverflow.com/questions/49187741/tkinter-looks-extremely-ugly-in-linux)
-- [https://github.com/ContinuumIO/anaconda-issues/issues/6833](https://github.com/ContinuumIO/anaconda-issues/issues/6833)
-- [https://github.com/conda-forge/tk-feedstock/pull/40](https://github.com/conda-forge/tk-feedstock/pull/40)
-- [https://github.com/conda-forge/tk-feedstock/pull/40#issuecomment-1803067221](https://github.com/conda-forge/tk-feedstock/pull/40#issuecomment-1803067221)
+This work is currently in preparation for publication. If you have come by it via means other than official channels, please contact the authors immediately.
 
-### Windows
+## Disclaimers
+This work has been supported by the National Institutes of Health and National Science Foundation.
+IRW (`irw-udel`) was also supported by a GAANN Fellowship funded by the Department of
+Education. The content is solely the responsibility of the authors and does not necessarily 
+represent the official views of the National Institutes of Health, National Science Foundation, 
+or Department of Education.
 
-As of the current working version (F2023), Windows conventions for flow logging have been implemented in the main routine.
- However, there are important differences in how threads/processes are handled between Windows and Linux, so the final 
- tests should be confirmed with whatever system is being used in lab.
-
-## Arduino
-
-This project no longer requires downloading the Arduino IDE or CLI directly. Use the version bundled with VS Code.
-
-## VS Code
-
-1. Install the following extensions. Some may be bundled together.
-    - Git Graph
-    - Python
-    - Jupyter
-    - Arduino
-        - AVR boards (install from extension widget)
-        - megaAVR boards (install from extension widget)
-    - C/C++ Extension Pack
-    - Serial Monitor
-
-1. Configure the Python path in user settings
-
-    ```json
-    "terminal.integrated.env.linux": {
-            "PYTHONPATH": "${workspaceFolder}"
-        }
-    ```
-
-1. Locate the path to the VS Code `arduino-cli` and add it to your system's `PATH` environment variable.
-
-## Python
-
-This project has used Anaconda to easily manage Python environments in development.
-
-1. Install the latest Miniconda  
-https://docs.conda.io/en/latest/miniconda.html
-1. Create the environment with the following command 
-
-    ```
-    conda env create -f environment.yml
-    ```
-    where `environment.yml` should reference the YAML configuration file in this repo.
-
-    ```yaml
-    name: dynamic
-    dependencies:
-    - python=3.9
-    - pyserial
-    - numpy
-    - matplotlib
-    - pandas
-    - jupyter
-    - plotly # only for interactive plot
-    - dash # only for more-interactive plot
-    ```
-
-If on Linux, see the note about fonts above.
+### Awards
+- NIH R35 GM142866
+- NSF 2237430
+- ED P200A210065
