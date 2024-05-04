@@ -285,6 +285,7 @@ class TIDAL():
     def update_variable_profile(self):
         self.substitute_params()
         try:
+            print("Attemping to update Arduino...")
             self.push_arduino()
         except Exception as e:
             print(f"{e}")

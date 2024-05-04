@@ -161,6 +161,8 @@ class GlobalSettingsPanel:
         
         Arduino.set_maneuver_order(self.ard, maneuver= 'exhale' if self.order.current() == 0 else 'inhale')
 
+        print("Done updating global settings.")
+
     def check_settings(self):
         if not self.tidal_instance.motors_connected:
             print("Please connect the motor controller. Cancelling command.")
@@ -168,6 +170,8 @@ class GlobalSettingsPanel:
 
         self.ard.print_parameters()
         self.ard.print_lobe_delays()
+
+        print("Done checking parameters.")
 
 if __name__ == "__main__":
     # arduino = Arduino('/dev/ttyACM0')

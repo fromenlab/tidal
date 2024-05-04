@@ -7,6 +7,12 @@ Those references are included here and throughout the code. Think we missed some
 
 - https://www.iforce2d.net/sketches/stepperControl_iforce2d.zip
 
+## Flow meter communication
+
+Early inspiration for communicating with the flow meter via Python came from:
+
+https://github.com/doc-E-brown/TSI_FlowMeter
+
 ## Live plot
 
 - https://web.archive.org/web/20210506195644/https://thepoorengineer.com/en/arduino-python-plot/

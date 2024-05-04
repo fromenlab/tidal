@@ -51,6 +51,12 @@ This project no longer requires downloading the Arduino IDE or CLI directly. Use
         ```
         echo 'export PATH=$PATH:~/.vscode/extensions/vsciot-vscode.vscode-arduino-0.6.0-linux-x64/assets/platform/linux-x64/arduino-cli' >> ~/.bashrc
         ````
+    - Windows:  
+      Find the location of the Arduino VS Code extension and add it to the list of paths in your `Path` environment variable.
+      It's probably something like this: 
+      ```
+      C:\Users\USERNAME\.vscode\extensions\vsciot-vscode.vscode-arduino-0.6.0-win32-x64\assets\platform\win32-x64\arduino-cli
+      ```
 
 ## Python
 
